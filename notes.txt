@@ -1,0 +1,35 @@
+  JBoss should be started in full configuration
+  
+$ standalone.sh -c standalone-full.xml
+
+  creating notifications topic using JBoss CLI
+  
+/] jms-topic add --topic-address=notifications --entries=java:/jms/topic/notifications
+
+  NotificationSubbscriptionRegistryBean
+  NotificationSubscriptionBean - stateful bean which holds durable subscription on notifications topic
+  NotificationSenderBean - topic publisher
+  NotificationDetectorBean - MDB which detects published message and starts receiving messages using all registered receivers
+  PendingNotificationsDispatcher - starts receiving notifications from all active subscribers dispatching them to corresponding client connections ( one subscription for each connection )
+  
+  HTTP API
+  
+  /notification/newreceiver?userId=2
+  /notification/receive?userId=2
+  
+  test page
+  
+  extend websockets.html page
+  
+  notifications.html
+  
+  add start button which will create new receiver for logged in user with id and save returned channel id
+  connect - old functionality 
+  close - old functionality
+  
+  remove servlet and change it to restful service
+  
+  the setting will allow to create non-shared durable subscriptions
+  /subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra:write-attribute(name="client-id",value="wildfly")
+  
+  change sending logic to doPost

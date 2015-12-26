@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8"/>
+		<title>Notification sending panel</title>
+		<script type="text/javascript" src="js/logger.js"></script>
+		<script type="text/javascript" src="js/notify.js"></script>
+	</head>
+	<body>
+		<form id="notify" action="notification/send">
+			<fieldset>
+				<label for="userId">User ID:</label>
+				<input id="userId" name="userId"/><br/>
+				<label for="message">Message:</label>
+				<input id="message" name="message"/><br/>
+				
+				<button type="submit">Send</button>
+				<button type="button" onclick="receive(event)">Receive</button>
+			</fieldset>
+		</form>
+		
+		<div id="appender">
+		</div>
+	</body>
+</html>
