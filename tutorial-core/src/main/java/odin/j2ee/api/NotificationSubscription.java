@@ -7,9 +7,13 @@ import javax.websocket.Session;
 public interface NotificationSubscription {
 	public String activate(Integer userId);
 	
-	public int dispatch();
+	public String getId();
 	
-	public void registerConnection(Session session);
+	public void dispatch(String notification);
+	
+	public void attachConnection(Session session);
 	
 	public void deactivate();
+
+	public Integer getUserId();
 }

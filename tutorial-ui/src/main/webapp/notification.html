@@ -7,7 +7,7 @@
 		<script type="text/javascript" src="js/notify.js"></script>
 	</head>
 	<body>
-		<form id="notify" action="notification/send">
+		<form id="notify" method="post" action="notification/send">
 			<fieldset>
 				<label for="userId">User ID:</label>
 				<input id="userId" name="userId"/><br/>
@@ -15,7 +15,7 @@
 				<input id="message" name="message"/><br/>
 				
 				<button type="submit">Send</button>
-				<button type="button" onclick="receive(event)">Receive</button>
+				<!-- <button type="button" onclick="receive(event)">Receive</button> -->
 			</fieldset>
 		</form>
 		

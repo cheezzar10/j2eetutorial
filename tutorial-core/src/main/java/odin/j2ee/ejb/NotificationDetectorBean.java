@@ -35,13 +35,15 @@ public class NotificationDetectorBean implements MessageListener {
 			String messageId = msg.getJMSMessageID();
 			int deliveryMode = msg.getJMSDeliveryMode();
 			boolean redelivered = msg.getJMSRedelivered();
+			
+			Integer userId = (Integer)msg.getObjectProperty("userId");
 			log.debug("notification #{} for user #{} was send using {} delivery mode and was{}redelivered", messageId, msg.getIntProperty("userId"),
 					deliveryMode == DeliveryMode.PERSISTENT ? "persistent" : "non persistent", redelivered ? " " : " not ");
 			
 			TextMessage textMsg = (TextMessage)msg;
 			log.debug("notification text: '{}'", textMsg.getText());
 			
-			// registry.dispatch();
+			registry.dispatchNotification(userId, textMsg.getText());
 		} catch (JMSException receivingEx) {
 			log.error("incoming message processing failed: ", receivingEx);
 		}

@@ -50,4 +50,11 @@ public class NotificationReceiverBean implements NotificationReceiver {
 			throw new EJBException(jmsEx);
 		}
 	}
+
+	@Override
+	public String unsubscribe() {
+		log.debug("removing subscription");
+		jmsCtx.unsubscribe("receiver");
+		return "";
+	}
 }

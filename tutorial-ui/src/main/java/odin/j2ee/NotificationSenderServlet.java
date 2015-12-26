@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import odin.j2ee.api.ClassicNotificationSender;
+import odin.j2ee.api.NotificationSender;
 
 @WebServlet("/notification/send")
 public class NotificationSenderServlet extends HttpServlet {
@@ -22,9 +22,9 @@ public class NotificationSenderServlet extends HttpServlet {
 	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	
 	@EJB
-	private ClassicNotificationSender sender;
+	private NotificationSender sender;
 
-	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		log.debug("send notification request received");
 		
 		String userIdStr = request.getParameter("userId");

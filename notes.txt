@@ -33,3 +33,26 @@ $ standalone.sh -c standalone-full.xml
   /subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra:write-attribute(name="client-id",value="wildfly")
   
   change sending logic to doPost
+  
+  checking messaging subsystem
+  
+  mbean statistics can be collected using MBean 
+  
+  jboss.as:deployment=tutorial-app.ear,subdeployment=tutorial-core.jar,subsystem=ejb3,message-driven-bean=MessagesDetector
+  
+  durable subscriptions can be monitored using the following MBeans
+  
+  jboss.as:subsystem=messaging,hornetq-server=default,runtime-queue=wildfly.<subscription name>
+  
+  message topics can be monitored using 
+  
+  jboss.as:subsystem=messaging,hornetq-server=default,jms-topic=Notifications
+  
+  concurrency utilities can be monitored using the following MBeans
+  
+  jboss.as:subsystem=ee
+  jboss.as:subsystem=ee,managed-executor-service=default
+  
+  can be accessed via JNDI using the following name
+  
+  java:jboss/ee/concurrency/executor/default

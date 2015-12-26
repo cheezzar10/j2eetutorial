@@ -13,6 +13,7 @@
 		<module>tutorial-core</module>
 		<module>tutorial-ui</module>
 		<module>tutorial-app</module>
+		<module>tutorial-clnt</module>
 	</modules>
 	
 	<build>

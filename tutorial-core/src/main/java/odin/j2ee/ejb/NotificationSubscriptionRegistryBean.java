@@ -1,10 +1,9 @@
 package odin.j2ee.ejb;
 
 import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Resource;
 import javax.ejb.EJB;
@@ -25,11 +24,10 @@ public class NotificationSubscriptionRegistryBean implements NotificationSubscri
 	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	
 	private Map<String, NotificationSubscription> subscriptions = new ConcurrentHashMap<>();
+	private Map<Integer, UserSubscriptions> userSubscriptions = new HashMap<>(); 
 	
 	@Resource
 	private SessionContext sessionCtx;
-	
-	private final AtomicBoolean dispatching = new AtomicBoolean();
 	
 	@Override
 	@Lock(LockType.WRITE)
@@ -39,27 +37,14 @@ public class NotificationSubscriptionRegistryBean implements NotificationSubscri
 		NotificationSubscription subscription = createSubscription();
 		String subscriptionId = subscription.activate(userId);
 		subscriptions.put(subscriptionId, subscription);
+		UserSubscriptions userSubs = userSubscriptions.get(userId);
+		if (userSubs == null) {
+			userSubs = new UserSubscriptions(userId);
+			userSubscriptions.put(userId, userSubs);
+		}
+		userSubs.add(subscription);
 		
 		return subscriptionId;
-	}
-	
-	@Override
-	@Lock(LockType.READ)
-	public void dispatch() {
-		if (!dispatching.compareAndSet(false, true)) {
-			log.debug("pending notifications dispatching in progress");
-		}
-		
-		Set<Map.Entry<String, NotificationSubscription>> entries = subscriptions.entrySet();
-		log.debug("dispatching pending notifications to {} active subscriptions", entries.size());
-		for (Map.Entry<String, NotificationSubscription> entry : entries) {
-			String subscriptionId = entry.getKey();
-			NotificationSubscription subscription = entry.getValue();
-			int dispatched = subscription.dispatch();
-			log.debug("{} pending notifications dispatched for subscription: {}", dispatched, subscriptionId);
-		}
-		
-		dispatching.set(false);
 	}
 	
 	@Override
@@ -78,11 +63,34 @@ public class NotificationSubscriptionRegistryBean implements NotificationSubscri
 	@Override
 	@Lock(LockType.WRITE)
 	public void removeSubscription(String subscriptionId) {
-		subscriptions.remove(subscriptionId);
+		log.debug("removing notification subscription {}", subscriptionId);
+		NotificationSubscription subscription = subscriptions.remove(subscriptionId);
+		if (subscription != null) {
+			Integer userId = subscription.getUserId();
+			log.debug("removing subscription {} from user {} subscriptions list", subscriptionId, userId);
+			UserSubscriptions userSubs = userSubscriptions.get(userId);
+			userSubs.remove(subscription.getId());
+			if (userSubs.isEmpty()) {
+				log.debug("subscription {} is the last user {} subscription", subscriptionId, userId);
+				userSubscriptions.remove(userId);
+			}
+		} else {
+			log.debug("detected attempt to remove unknown subscription {}", subscriptionId);
+		}
 	}
 	
 	private NotificationSubscription createSubscription() {
 		NotificationSubscription subscription = (NotificationSubscription)sessionCtx.lookup("ejb/NotificationSubscription");
 		return subscription;
+	}
+
+	@Override
+	@Lock(LockType.READ)
+	public void dispatchNotification(Integer userId, String notification) {
+		log.debug("dispatching notification {} to subscriptions associated with user: {}", notification, userId);
+		UserSubscriptions userSubs = userSubscriptions.get(userId);
+		if (userSubs != null) {
+			userSubs.dispatch(notification);
+		}
 	}
 }

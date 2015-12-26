@@ -35,7 +35,7 @@ public class NotificationDispatchingEndpoint  {
 		this.subscriptionId = subscriptionId;
 		
 		NotificationSubscription subscription = registry.getSubscription(subscriptionId);
-		subscription.registerConnection(session);
+		subscription.attachConnection(session);
 	}
 	
 	@OnError

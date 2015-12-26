@@ -8,9 +8,9 @@ import odin.j2ee.api.NotificationSubscription;
 public interface NotificationSubscriptionRegistry {
 	public String subscribe(Integer userId);
 	
-	public void dispatch();
-	
 	public NotificationSubscription getSubscription(String subscriptionId);
 	
 	public void removeSubscription(String subscriptionId);
+
+	public void dispatchNotification(Integer userId, String notification);
 }
