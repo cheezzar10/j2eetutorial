@@ -3,6 +3,7 @@
 	<head>
 		<meta charset="utf-8"/>
 		<title>Subscription panel</title>
+		<link rel="stylesheet" href="css/global.css" type="text/css">
 		<script type="text/javascript" src="js/logger.js"></script>
 		<script type="text/javascript" src="js/subscribe.js"></script>
 	</head>
@@ -13,13 +14,16 @@
 				<input id="userId"/><br/>
 				
 				<button onclick="subscribe(event)">Subscribe</button>
+				<button onclick="closeConnection(event)">Close</button>
+				<button onclick="reopenConnection(event)">Reopen</button>
+				<button onclick="unsubscribe(event)">Unsubscribe</button>
 			</fieldset>
 		</form>
 		
-		<div id="appender">
+		<div id="appender" class="appender">
 		</div>
 		
-		<div id="notifications">
+		<div id="notifications" class="notifications">
 		</div>
 	</body>
 </html>

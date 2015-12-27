@@ -68,3 +68,13 @@ $ standalone.sh -c standalone-full.xml
   large sample notification
   
   { "id": "5376424c-bad3-4dd2-ac17-167bc7236088", "status": "in progress", "message": "Creating domain: bmwklub.de", "time": "1451141909228" }
+  
+  add close message, subscription should remain open in case of connection close
+  
+  customizing redelivery settings for Notifications topic
+  
+  /subsystem=messaging/hornetq-server=default/address-setting="jms.topic.Notifications":add
+  /subsystem=messaging/hornetq-server=default/address-setting=jms.topic.Notifications:write-attribute(name="dead-letter-address", value="jms.queue.DLQ")
+  /subsystem=messaging/hornetq-server=default/address-setting=jms.topic.Notifications:write-attribute(name="expiry-address", value="jms.queue.ExpiryQueue")
+  /subsystem=messaging/hornetq-server=default/address-setting=jms.topic.Notifications:write-attribute(name="redelivery-delay", value=30000)
+  

@@ -3,8 +3,10 @@ package odin.j2ee.ejb;
 import java.lang.invoke.MethodHandles;
 
 import javax.ejb.EJB;
+import javax.annotation.Resource;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
+import javax.ejb.MessageDrivenContext;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 
@@ -17,14 +19,19 @@ import javax.jms.DeliveryMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import odin.j2ee.api.DispatchingFailedException;
 import odin.j2ee.api.NotificationSubscriptionRegistry;
 
 @MessageDriven(name = "MessagesDetector", activationConfig = {
 	@ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Topic"),
-	@ActivationConfigProperty(propertyName = "destinationLookup", propertyValue = "java:/jms/topic/notifications")
+	@ActivationConfigProperty(propertyName = "destinationLookup", propertyValue = "java:/jms/topic/notifications"),
+	@ActivationConfigProperty(propertyName = "maxSession", propertyValue = "1")
 })
 public class NotificationDetectorBean implements MessageListener {
 	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+	
+	@Resource
+	private MessageDrivenContext context;
 	
 	@EJB
 	private NotificationSubscriptionRegistry registry;
@@ -41,7 +48,12 @@ public class NotificationDetectorBean implements MessageListener {
 					deliveryMode == DeliveryMode.PERSISTENT ? "persistent" : "non persistent", redelivered ? " " : " not ");
 			
 			TextMessage textMsg = (TextMessage)msg;
-			registry.dispatchNotification(userId, textMsg.getText());
+			try {
+				registry.dispatchNotification(userId, textMsg.getText());
+			} catch (DispatchingFailedException dispatchingEx) {
+				log.error("dispatching failed: ", dispatchingEx);
+				context.setRollbackOnly();
+			}
 		} catch (JMSException receivingEx) {
 			log.error("incoming message processing failed: ", receivingEx);
 		}

@@ -1,12 +1,16 @@
 package odin.j2ee;
 
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 
 import javax.inject.Inject;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
+import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
+import javax.websocket.CloseReason;
+import javax.websocket.CloseReason.CloseCodes;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
@@ -38,6 +42,22 @@ public class NotificationDispatchingEndpoint  {
 		subscription.attachConnection(session);
 	}
 	
+	@OnMessage
+	public void onCommand(Session session, String command) {
+		log.debug("command {} received via connection  {}", command, session.getId());
+		if ("unsubscribe".equals(command)) {
+			NotificationSubscription subscription = registry.getSubscription(subscriptionId);
+			subscription.deactivate();
+			try {
+				session.close(new CloseReason(CloseCodes.NORMAL_CLOSURE, "client unsubscribed"));
+			} catch (IOException closeFailedEx) {
+				log.error("failed to close client connetion: ", closeFailedEx);
+			}
+		} else {
+			log.debug("unknow command: '{}'", command);
+		}
+	}
+	
 	@OnError
 	public void errorHappened(Throwable error) {
 		log.error(String.format("websocket connection %s error", session.getId()), error);
@@ -46,8 +66,6 @@ public class NotificationDispatchingEndpoint  {
 	@OnClose
 	public void onClose() {
 		log.debug("websocket connection {} closed", session.getId());
-		
-		NotificationSubscription subscription = registry.getSubscription(subscriptionId);
-		subscription.deactivate();
+		// TODO unplug client connection
 	}
 }

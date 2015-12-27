@@ -7,6 +7,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import odin.j2ee.api.DispatchingFailedException;
 import odin.j2ee.api.NotificationSubscription;
 
 public class UserSubscriptions {
@@ -20,7 +21,7 @@ public class UserSubscriptions {
 	}
 	
 	// TODO seems like lock is needed here, but check cause access to SFSB will be serialized anyway
-	public void dispatch(String notification) {
+	public void dispatch(String notification) throws DispatchingFailedException {
 		log.debug("dispatching notification to user {} subscriptions", userId);
 		for (NotificationSubscription subscription : subscriptions.values()) {
 			subscription.dispatch(notification);

@@ -13,6 +13,7 @@ import javax.websocket.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import odin.j2ee.api.DispatchingFailedException;
 import odin.j2ee.api.NotificationSubscription;
 import odin.j2ee.api.NotificationSubscriptionRegistry;
 
@@ -54,7 +55,7 @@ public class NotificationSubscriptionBean implements NotificationSubscription {
 	}
 	
 	@Override
-	public void dispatch(String notification) {
+	public void dispatch(String notification) throws DispatchingFailedException {
 		log.debug("dispatching notification received from subscription {} using client connection {}", subscriptionId, session.getId());
 		
 		long start = System.currentTimeMillis();
@@ -62,8 +63,8 @@ public class NotificationSubscriptionBean implements NotificationSubscription {
 		try {
 			clientEndpoint.sendText(notification);
 			log.debug("notification successfully dispatched in {} ms", System.currentTimeMillis() - start);
-		} catch (IOException sendingFailedEx) {
-			log.debug("failed to dispatch notification to client connection", sendingFailedEx);
+		} catch (IOException dispatchingFailedEx) {
+			throw new DispatchingFailedException("notification dispatching failed: ", dispatchingFailedEx);
 		}
 	}
 	

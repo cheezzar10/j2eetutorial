@@ -12,5 +12,5 @@ public interface NotificationSubscriptionRegistry {
 	
 	public void removeSubscription(String subscriptionId);
 
-	public void dispatchNotification(Integer userId, String notification);
+	public void dispatchNotification(Integer userId, String notification) throws DispatchingFailedException;
 }

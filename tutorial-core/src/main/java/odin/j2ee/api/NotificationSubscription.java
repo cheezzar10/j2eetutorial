@@ -9,7 +9,7 @@ public interface NotificationSubscription {
 	
 	public String getId();
 	
-	public void dispatch(String notification);
+	public void dispatch(String notification) throws DispatchingFailedException;
 	
 	public void attachConnection(Session session);
 	

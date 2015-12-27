@@ -15,6 +15,7 @@ import javax.ejb.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import odin.j2ee.api.DispatchingFailedException;
 import odin.j2ee.api.NotificationSubscription;
 import odin.j2ee.api.NotificationSubscriptionRegistry;
 
@@ -86,7 +87,7 @@ public class NotificationSubscriptionRegistryBean implements NotificationSubscri
 
 	@Override
 	@Lock(LockType.READ)
-	public void dispatchNotification(Integer userId, String notification) {
+	public void dispatchNotification(Integer userId, String notification) throws DispatchingFailedException {
 		log.debug("dispatching notification to subscriptions associated with user: {}", userId);
 		UserSubscriptions userSubs = userSubscriptions.get(userId);
 		if (userSubs != null) {
