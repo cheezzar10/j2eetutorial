@@ -21,7 +21,7 @@ public class UserSubscriptions {
 	
 	// TODO seems like lock is needed here, but check cause access to SFSB will be serialized anyway
 	public void dispatch(String notification) {
-		log.debug("dispatching notification '{}' to user {} subscriptions", notification, userId);
+		log.debug("dispatching notification to user {} subscriptions", userId);
 		for (NotificationSubscription subscription : subscriptions.values()) {
 			subscription.dispatch(notification);
 		}

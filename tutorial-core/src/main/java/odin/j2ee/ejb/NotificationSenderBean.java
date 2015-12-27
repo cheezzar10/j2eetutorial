@@ -30,7 +30,7 @@ public class NotificationSenderBean implements NotificationSender {
 	@Override
 	public void send(Integer userId, String msg) {
 		try {
-			log.debug("sending notification: {} to user #{}", msg, userId);
+			log.debug("sending notification to user #{}", userId);
 		
 			TextMessage textMsg = jmsCtx.createTextMessage(msg);
 			textMsg.setIntProperty("userId", userId);

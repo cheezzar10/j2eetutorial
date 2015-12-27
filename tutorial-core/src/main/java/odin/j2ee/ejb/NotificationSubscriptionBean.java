@@ -55,7 +55,7 @@ public class NotificationSubscriptionBean implements NotificationSubscription {
 	
 	@Override
 	public void dispatch(String notification) {
-		log.debug("dispatching notification {} received from subscription {} using client connection {}", notification, subscriptionId, session.getId());
+		log.debug("dispatching notification received from subscription {} using client connection {}", subscriptionId, session.getId());
 		
 		long start = System.currentTimeMillis();
 		RemoteEndpoint.Basic clientEndpoint = session.getBasicRemote();

@@ -30,8 +30,10 @@ public class NotificationSenderServlet extends HttpServlet {
 		String userIdStr = request.getParameter("userId");
 		Integer userId = Integer.parseInt(userIdStr);
 		
-		String message = request.getParameter("message");
-		sender.send(userId, message);
+		String[] messages = request.getParameterValues("message");
+		for (String message : messages) {
+			sender.send(userId, message);
+		}
 		
 		String redirectUrl = request.getContextPath() + "/notification.html";
 		log.debug("redirecting to: {}", redirectUrl);

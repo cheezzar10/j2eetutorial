@@ -56,3 +56,15 @@ $ standalone.sh -c standalone-full.xml
   can be accessed via JNDI using the following name
   
   java:jboss/ee/concurrency/executor/default
+  
+  sending notification using curl
+  
+  curl -X POST -d "userId=1&message=3%3Atext" http://localhost:8080/tutorial/notification/send
+  
+  userId=1&message=1%3Acreating&message=1%3Acreated
+  
+  start JBoss binding to all interfaces standaloane.sh -b 0.0.0.0 -c standalone-full.sh
+  
+  large sample notification
+  
+  { "id": "5376424c-bad3-4dd2-ac17-167bc7236088", "status": "in progress", "message": "Creating domain: bmwklub.de", "time": "1451141909228" }

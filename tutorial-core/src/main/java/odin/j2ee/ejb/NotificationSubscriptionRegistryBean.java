@@ -87,7 +87,7 @@ public class NotificationSubscriptionRegistryBean implements NotificationSubscri
 	@Override
 	@Lock(LockType.READ)
 	public void dispatchNotification(Integer userId, String notification) {
-		log.debug("dispatching notification {} to subscriptions associated with user: {}", notification, userId);
+		log.debug("dispatching notification to subscriptions associated with user: {}", userId);
 		UserSubscriptions userSubs = userSubscriptions.get(userId);
 		if (userSubs != null) {
 			userSubs.dispatch(notification);
