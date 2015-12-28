@@ -27,8 +27,7 @@ import odin.j2ee.api.NotificationSubscriptionRegistry;
 public class NotificationSubscriptionRegistryBean implements NotificationSubscriptionRegistry {
 	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	
-	// TODO create notification subscription handle which will hold subscription connection status
-	private Map<String, NotificationSubscription> subscriptions = new ConcurrentHashMap<>();
+	private Map<String, NotificationChannel> subscriptions = new ConcurrentHashMap<>();
 	private Map<Integer, UserSubscriptions> userSubscriptions = new HashMap<>(); 
 	
 	@Resource
@@ -41,40 +40,39 @@ public class NotificationSubscriptionRegistryBean implements NotificationSubscri
 		
 		NotificationSubscription subscription = createSubscription();
 		String subscriptionId = subscription.activate(userId);
-		subscriptions.put(subscriptionId, subscription);
+		NotificationChannel channel = new NotificationChannel(subscription, subscriptionId);
+		subscriptions.put(subscriptionId, channel);
 		UserSubscriptions userSubs = userSubscriptions.get(userId);
 		if (userSubs == null) {
 			userSubs = new UserSubscriptions(userId);
 			userSubscriptions.put(userId, userSubs);
 		}
-		userSubs.add(subscription);
-		
+		userSubs.add(channel);
 		return subscriptionId;
 	}
 	
 	@Override
 	@Lock(LockType.READ)
-	public NotificationSubscription getSubscription(String subscriptionId) {
+	public NotificationChannel getSubscription(String subscriptionId) {
 		log.debug("searching for notification subscription {}", subscriptionId);
-		NotificationSubscription subscription = subscriptions.get(subscriptionId);
-		
-		if (subscription == null) {
+		NotificationChannel subscriptionRef = subscriptions.get(subscriptionId);
+		if (subscriptionRef == null) {
 			log.debug("notification subscription {} not found", subscriptionId);
 		}
-		
-		return subscription;
+		return subscriptionRef;
 	}
 	
 	@Override
 	@Lock(LockType.WRITE)
 	public void removeSubscription(String subscriptionId) {
 		log.debug("removing notification subscription {}", subscriptionId);
-		NotificationSubscription subscription = subscriptions.remove(subscriptionId);
+		NotificationChannel channel = subscriptions.remove(subscriptionId);
+		NotificationSubscription subscription = channel.getSubscription();
 		if (subscription != null) {
 			Integer userId = subscription.getUserId();
 			log.debug("removing subscription {} from user {} subscriptions list", subscriptionId, userId);
 			UserSubscriptions userSubs = userSubscriptions.get(userId);
-			userSubs.remove(subscription.getId());
+			userSubs.remove(channel.getId());
 			if (userSubs.isEmpty()) {
 				log.debug("subscription {} was the last user {} subscription", subscriptionId, userId);
 				userSubscriptions.remove(userId);

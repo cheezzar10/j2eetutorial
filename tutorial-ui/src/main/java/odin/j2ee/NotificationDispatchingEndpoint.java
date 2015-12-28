@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import odin.j2ee.api.NotificationSubscription;
 import odin.j2ee.api.NotificationSubscriptionRegistry;
+import odin.j2ee.ejb.NotificationChannel;
 
 // TODO rename to NotificationSubscriptionEndpoint
 @ServerEndpoint("/notifications/subscription/{subscriptionId}")
@@ -39,9 +40,9 @@ public class NotificationDispatchingEndpoint  {
 		this.session = session;
 		this.subscriptionId = subscriptionId;
 		
-		NotificationSubscription subscription = registry.getSubscription(subscriptionId);
+		NotificationChannel subscription = registry.getSubscription(subscriptionId);
 		if (subscription != null) {
-			subscription.attachConnection(session);
+			subscription.connect(session);
 		} else {
 			closeSession(new CloseReason(CloseCodes.VIOLATED_POLICY, "subscription not found"));
 		}
@@ -62,8 +63,8 @@ public class NotificationDispatchingEndpoint  {
 	@OnMessage
 	public void catchPong(PongMessage pongMsg) {
 		log.debug("pong message received using connection: {}", session.getId());
-		NotificationSubscription subscription = registry.getSubscription(subscriptionId);
-		subscription.markAsAlive();
+		NotificationChannel channel = registry.getSubscription(subscriptionId);
+		channel.setReady(true);
 	}
 
 	private void closeSession(CloseReason reason) {
@@ -75,7 +76,8 @@ public class NotificationDispatchingEndpoint  {
 	}
 
 	private void unsubscribe() {
-		NotificationSubscription subscription = registry.getSubscription(subscriptionId);
+		NotificationChannel channel = registry.getSubscription(subscriptionId);
+		NotificationSubscription subscription = channel.getSubscription();
 		subscription.deactivate();
 	}
 	
