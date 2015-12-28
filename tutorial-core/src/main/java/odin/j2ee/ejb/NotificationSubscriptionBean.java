@@ -2,11 +2,16 @@ package odin.j2ee.ejb;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.nio.ByteBuffer;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.Remove;
 import javax.ejb.Stateful;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
 
@@ -18,6 +23,7 @@ import odin.j2ee.api.NotificationSubscription;
 import odin.j2ee.api.NotificationSubscriptionRegistry;
 
 @Stateful(name = "NotificationSubscription")
+@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class NotificationSubscriptionBean implements NotificationSubscription {
 	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	
@@ -29,6 +35,8 @@ public class NotificationSubscriptionBean implements NotificationSubscription {
 	private Integer userId;
 	
 	private Session session;
+	
+	private CompletableFuture<Boolean> alive = null;
 
 	@PostConstruct
 	private void init() {
@@ -56,7 +64,7 @@ public class NotificationSubscriptionBean implements NotificationSubscription {
 	
 	@Override
 	public void dispatch(String notification) throws DispatchingFailedException {
-		log.debug("dispatching notification received from subscription {} using client connection {}", subscriptionId, session.getId());
+		log.debug("dispatching notification {} to subscription {} using client connection {}", notification, subscriptionId, session.getId());
 		
 		long start = System.currentTimeMillis();
 		RemoteEndpoint.Basic clientEndpoint = session.getBasicRemote();
@@ -64,7 +72,7 @@ public class NotificationSubscriptionBean implements NotificationSubscription {
 			clientEndpoint.sendText(notification);
 			log.debug("notification successfully dispatched in {} ms", System.currentTimeMillis() - start);
 		} catch (IOException dispatchingFailedEx) {
-			throw new DispatchingFailedException("notification dispatching failed: ", dispatchingFailedEx);
+			throw new DispatchingFailedException("failed to send notification", dispatchingFailedEx);
 		}
 	}
 	
@@ -79,5 +87,31 @@ public class NotificationSubscriptionBean implements NotificationSubscription {
 	public void deactivate() {
 		log.debug("deactivating notification subscription {}", subscriptionId);
 		registry.removeSubscription(subscriptionId);
+	}
+
+	@Override
+	public Future<Boolean> isAlive() {
+		ByteBuffer timeBuffer = ByteBuffer.allocate(Long.BYTES);
+		timeBuffer.putLong(System.currentTimeMillis());
+		try {
+			session.getBasicRemote().sendPing(timeBuffer);
+		} catch (IllegalArgumentException | IOException sendPingEx) {
+			log.error("failed to send ping: ", sendPingEx);
+			CompletableFuture<Boolean> nonAlive = new CompletableFuture<>();
+			nonAlive.complete(false);
+			return nonAlive;
+		}
+		alive = new CompletableFuture<>();
+		return alive;
+	}
+
+	@Override
+	public void markAsAlive() {
+		log.debug("marking subscription {} connection {} as alive", subscriptionId, session.getId());
+		if (alive != null) {
+			alive.complete(true);
+		} else {
+			log.warn("failed to mark as alive - completion status uninitialized");
+		}
 	}
 }

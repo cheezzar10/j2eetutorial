@@ -33,14 +33,19 @@ function connect() {
 		var notification = document.createElement("div");
 		notification.appendChild(document.createTextNode(evt.data));
 		notifications.appendChild(notification);
+		// TODO acknowledgement logic
 	};
 	
 	conn.onerror = function(evt) {
-		log("subscription connection error: " + evt.toString());
+		log("connection error: " + evt);
 	};
 	
 	conn.onclose = function(evt) {
-		log("connection closed");
+		log("connection closed: " + evt.code + ":" + evt.reason);
+		// if not normal close or server is down or violated policy
+		if (!(evt.code == 1000 || evt.code == 1001 || evt.code == 1008)) {
+			setTimeout(reopenConnection, 5000);
+		}
 	};
 	
 	subscription.conn = conn;
@@ -49,14 +54,16 @@ function connect() {
 
 function closeConnection(event) {
 	log("closing connection");
-	subscription.conn.close();
+	subscription.conn.close(1000, "client closed connection");
 	event.preventDefault();
 }
 
 function reopenConnection(event) {
 	log("re-opening connection to notification subscription: " + subscription.subscriptionId);
 	connect();
-	event.preventDefault();
+	if (event != null) {
+		event.preventDefault();
+	}
 }
 
 function unsubscribe(event) {

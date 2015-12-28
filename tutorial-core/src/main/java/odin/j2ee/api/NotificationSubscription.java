@@ -1,5 +1,7 @@
 package odin.j2ee.api;
 
+import java.util.concurrent.Future;
+
 import javax.ejb.Local;
 import javax.websocket.Session;
 
@@ -16,4 +18,8 @@ public interface NotificationSubscription {
 	public void deactivate();
 
 	public Integer getUserId();
+
+	public Future<Boolean> isAlive();
+
+	public void markAsAlive();
 }

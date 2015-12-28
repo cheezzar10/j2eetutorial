@@ -8,6 +8,7 @@ import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
+import javax.websocket.PongMessage;
 import javax.websocket.Session;
 import javax.websocket.CloseReason;
 import javax.websocket.CloseReason.CloseCodes;
@@ -39,33 +40,58 @@ public class NotificationDispatchingEndpoint  {
 		this.subscriptionId = subscriptionId;
 		
 		NotificationSubscription subscription = registry.getSubscription(subscriptionId);
-		subscription.attachConnection(session);
+		if (subscription != null) {
+			subscription.attachConnection(session);
+		} else {
+			closeSession(new CloseReason(CloseCodes.VIOLATED_POLICY, "subscription not found"));
+		}
 	}
 	
 	@OnMessage
-	public void onCommand(Session session, String command) {
-		log.debug("command {} received via connection  {}", command, session.getId());
+	public void onCommand(String command) {
+		log.debug("command {} received via connection {}", command, session.getId());
 		if ("unsubscribe".equals(command)) {
-			NotificationSubscription subscription = registry.getSubscription(subscriptionId);
-			subscription.deactivate();
-			try {
-				session.close(new CloseReason(CloseCodes.NORMAL_CLOSURE, "client unsubscribed"));
-			} catch (IOException closeFailedEx) {
-				log.error("failed to close client connetion: ", closeFailedEx);
-			}
+			unsubscribe();
+			closeSession(new CloseReason(CloseCodes.NORMAL_CLOSURE, "client unsubscribed"));
+			
 		} else {
 			log.debug("unknow command: '{}'", command);
 		}
 	}
 	
+	@OnMessage
+	public void catchPong(PongMessage pongMsg) {
+		log.debug("pong message received using connection: {}", session.getId());
+		NotificationSubscription subscription = registry.getSubscription(subscriptionId);
+		subscription.markAsAlive();
+	}
+
+	private void closeSession(CloseReason reason) {
+		try {
+			session.close();
+		} catch (IOException closeFailedEx) {
+			log.error("failed to close client connection: ", closeFailedEx);
+		}
+	}
+
+	private void unsubscribe() {
+		NotificationSubscription subscription = registry.getSubscription(subscriptionId);
+		subscription.deactivate();
+	}
+	
 	@OnError
 	public void errorHappened(Throwable error) {
-		log.error(String.format("websocket connection %s error", session.getId()), error);
+		log.error(String.format("websocket connection %s error: ", session.getId()), error);
 	}
 	
 	@OnClose
-	public void onClose() {
-		log.debug("websocket connection {} closed", session.getId());
-		// TODO unplug client connection
+	public void onClose(CloseReason reason) {
+		CloseReason.CloseCode closeCode = reason.getCloseCode();
+		log.debug("websocket connection {} closed. close code: {} reason: {}", session.getId(), 
+				closeCode.getCode(), reason.getReasonPhrase());
+		
+		if (closeCode == CloseCodes.NORMAL_CLOSURE || closeCode == CloseCodes.GOING_AWAY) {
+			unsubscribe();
+		}
 	}
 }

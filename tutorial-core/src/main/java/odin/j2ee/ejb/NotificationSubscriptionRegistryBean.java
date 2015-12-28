@@ -11,6 +11,8 @@ import javax.ejb.Lock;
 import javax.ejb.LockType;
 import javax.ejb.SessionContext;
 import javax.ejb.Singleton;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,9 +23,11 @@ import odin.j2ee.api.NotificationSubscriptionRegistry;
 
 @Singleton(name = "NotificationSubscriptionRegistry")
 @EJB(name = "ejb/NotificationSubscription", beanInterface = NotificationSubscription.class)
+@TransactionAttribute(TransactionAttributeType.SUPPORTS)
 public class NotificationSubscriptionRegistryBean implements NotificationSubscriptionRegistry {
 	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	
+	// TODO create notification subscription handle which will hold subscription connection status
 	private Map<String, NotificationSubscription> subscriptions = new ConcurrentHashMap<>();
 	private Map<Integer, UserSubscriptions> userSubscriptions = new HashMap<>(); 
 	
@@ -72,7 +76,7 @@ public class NotificationSubscriptionRegistryBean implements NotificationSubscri
 			UserSubscriptions userSubs = userSubscriptions.get(userId);
 			userSubs.remove(subscription.getId());
 			if (userSubs.isEmpty()) {
-				log.debug("subscription {} is the last user {} subscription", subscriptionId, userId);
+				log.debug("subscription {} was the last user {} subscription", subscriptionId, userId);
 				userSubscriptions.remove(userId);
 			}
 		} else {
