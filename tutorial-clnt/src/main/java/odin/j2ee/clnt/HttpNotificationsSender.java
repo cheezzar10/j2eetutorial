@@ -34,7 +34,8 @@ public class HttpNotificationsSender {
 			params.add(new BasicNameValuePair("userId", "1"));
 			StringBuilder message = new StringBuilder();
 			message.append(nid);
-			message.append(":").append(RandomStringUtils.random(1024 * 32, true, false));
+			// message.append(":").append(RandomStringUtils.random(1024 * 32, true, false));
+			message.append(":").append("VPS created");
 			params.add(new BasicNameValuePair("message", message.toString()));
 			UrlEncodedFormEntity reqBody = new UrlEncodedFormEntity(params, Consts.UTF_8);
 			sendReq.setEntity(reqBody);

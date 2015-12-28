@@ -1,5 +1,7 @@
 package odin.j2ee.api;
 
+import java.util.Set;
+
 import javax.ejb.Local;
 
 import odin.j2ee.ejb.NotificationChannel;
@@ -12,5 +14,7 @@ public interface NotificationSubscriptionRegistry {
 	
 	public void removeSubscription(String subscriptionId);
 
-	public void dispatchNotification(Integer userId, String notification) throws DispatchingFailedException;
+	public Set<String> getUserChannelIds(Integer userId);
+
+	public void dispatchNotification(String subscriptionId, String text) throws DispatchingFailedException;
 }

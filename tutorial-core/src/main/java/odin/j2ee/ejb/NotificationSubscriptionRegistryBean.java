@@ -1,8 +1,10 @@
 package odin.j2ee.ejb;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Resource;
@@ -86,14 +88,24 @@ public class NotificationSubscriptionRegistryBean implements NotificationSubscri
 		NotificationSubscription subscription = (NotificationSubscription)sessionCtx.lookup("ejb/NotificationSubscription");
 		return subscription;
 	}
+	
+	@Override
+	@Lock(LockType.READ)
+	public void dispatchNotification(String subscriptionId, String notification) throws DispatchingFailedException {
+		NotificationChannel channel = subscriptions.get(subscriptionId);
+		if (channel != null) {
+			channel.dispatch(notification);
+		}
+	}
 
 	@Override
 	@Lock(LockType.READ)
-	public void dispatchNotification(Integer userId, String notification) throws DispatchingFailedException {
-		log.debug("dispatching notification to subscriptions associated with user: {}", userId);
-		UserSubscriptions userSubs = userSubscriptions.get(userId);
-		if (userSubs != null) {
-			userSubs.dispatch(notification);
+	public Set<String> getUserChannelIds(Integer userId) {
+		log.debug("loading all channels for user {} subscriptions", userId);
+		UserSubscriptions channels = userSubscriptions.get(userId);
+		if (channels != null) {
+			return channels.getIds();
 		}
+		return Collections.emptySet();
 	}
 }
