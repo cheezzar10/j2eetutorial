@@ -25,7 +25,7 @@ public class HttpNotificationsSender {
 		
 		System.out.printf("message: %s", RandomStringUtils.random(16, true, false));
 		
-		int count = 512;
+		int count = 1024;
 		for (int nid = 1;nid <= count;nid++) {
 			System.out.printf("sending request: %d%n", nid);
 			
@@ -34,8 +34,8 @@ public class HttpNotificationsSender {
 			params.add(new BasicNameValuePair("userId", "1"));
 			StringBuilder message = new StringBuilder();
 			message.append(nid);
-			// message.append(":").append(RandomStringUtils.random(1024 * 32, true, false));
-			message.append(":").append("VPS created");
+			message.append(":").append(RandomStringUtils.random(1024 * 32, true, false));
+			// message.append(":").append("VPS created");
 			params.add(new BasicNameValuePair("message", message.toString()));
 			UrlEncodedFormEntity reqBody = new UrlEncodedFormEntity(params, Consts.UTF_8);
 			sendReq.setEntity(reqBody);

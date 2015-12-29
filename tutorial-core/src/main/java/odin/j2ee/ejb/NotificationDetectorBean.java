@@ -1,8 +1,7 @@
 package odin.j2ee.ejb;
 
 import java.lang.invoke.MethodHandles;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Enumeration;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
@@ -14,6 +13,7 @@ import javax.ejb.MessageDrivenContext;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
+import javax.jms.ConnectionMetaData;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.JMSContext;
@@ -37,32 +37,31 @@ import odin.j2ee.api.NotificationSubscriptionRegistry;
 public class NotificationDetectorBean implements MessageListener {
 	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	
-	private static final int DISTRIBUTION_QUEUES_MAX = 8;
-	
 	@Resource
 	private MessageDrivenContext context;
 		
 	@Inject
 	private JMSContext jmsCtx;
 	
-	private Destination[] distributionQueues;
+	@Resource(mappedName = "java:/jms/queue/notifications")
+	private Destination queue;
 	
 	@EJB
 	private NotificationSubscriptionRegistry registry;
 	
 	@PostConstruct
 	private void init() {
-		List<? extends Destination> queues = new LinkedList<>();
-		for (int queueIdx=0;queueIdx<DISTRIBUTION_QUEUES_MAX;queueIdx++) {
-			try {
-				context.lookup(String.format("queue/notification%02d", queueIdx));
-			} catch (IllegalArgumentException queueNotFound) {
-				log.debug("distribution queue with index = {} not found", queueIdx);
-				break;
+		ConnectionMetaData jmsConnMeta = jmsCtx.getMetaData();
+		try {
+			@SuppressWarnings("unchecked")
+			Enumeration<String> jmsxPropNames = jmsConnMeta.getJMSXPropertyNames();
+			while (jmsxPropNames.hasMoreElements()) {
+				String jmsxPropName = jmsxPropNames.nextElement();
+				log.debug("JMSX property name: {}", jmsxPropName);
 			}
+		} catch (JMSException jmsEx) {
+			log.debug("failed to dump JMSX property names", jmsEx);
 		}
-		distributionQueues = queues.toArray(new Destination[queues.size()]);
-		log.debug("{} distribution queues configured", distributionQueues.length);
 	}
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
@@ -80,16 +79,14 @@ public class NotificationDetectorBean implements MessageListener {
 			
 			TextMessage textMsg = (TextMessage)msg;
 			
-			JMSProducer broker = jmsCtx.createProducer();
+			JMSProducer distrubutor = jmsCtx.createProducer();
 			Set<String> userChannelIds = registry.getUserChannelIds(userId);
 			for (String channelId : userChannelIds) {
-				int channelHash = Math.abs(channelId.hashCode());
-				int queueIdx = channelHash % distributionQueues.length;
-				log.debug("dispatching message {} to channel {} using distribution queue #{}", textMsg.getText(), channelId, queueIdx);
-				
+				log.debug("distributing notification {} to channel {}", messageId, channelId);
 				TextMessage notificationMsg = jmsCtx.createTextMessage(textMsg.getText());
 				notificationMsg.setStringProperty("subscriptionId", channelId);
-				broker.send(distributionQueues[queueIdx], notificationMsg);
+				notificationMsg.setStringProperty("JMSXGroupID", channelId);
+				distrubutor.send(queue, notificationMsg);
 			}
 		} catch (JMSException receivingEx) {
 			log.error("incoming message processing failed: ", receivingEx);

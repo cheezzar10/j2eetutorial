@@ -39,7 +39,7 @@ public class NotificationChannel {
 	}
 	
 	public void dispatch(String notification) throws DispatchingFailedException {
-		log.debug("dispatching notification {} to subscription {} using client connection {}", notification, id, session.get().getId());
+		log.debug("dispatching notification using channel {} plugged to connection {}", id, session.get().getId());
 		
 		long start = System.currentTimeMillis();
 		RemoteEndpoint.Basic clientEndpoint = session.get().getBasicRemote();
