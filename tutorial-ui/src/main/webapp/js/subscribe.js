@@ -70,3 +70,17 @@ function unsubscribe(event) {
 	subscription.conn.send("unsubscribe");
 	event.preventDefault();
 }
+
+function receive(event) {
+	log("sending request to receive notification using subcription: " + subscription.subscriptionId);
+	var req = new XMLHttpRequest();
+	req.onreadystatechange = function() {
+		if (req.readyState == 4) {
+			log("response status: " + req.status + ", response: " + req.responseText);
+		}
+	};
+	req.open("get", "/tutorial/rs/notifications/" + subscription.subscriptionId, true);
+	req.send(null);
+	
+	event.preventDefault();
+}

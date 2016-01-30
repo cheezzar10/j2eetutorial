@@ -54,7 +54,7 @@ public class NotificationReceiverBean implements NotificationReceiver {
 	@Override
 	public String unsubscribe() {
 		log.debug("removing subscription");
-		jmsCtx.unsubscribe("receiver");
+		jmsCtx.unsubscribe("1454175385735");
 		return "";
 	}
 }

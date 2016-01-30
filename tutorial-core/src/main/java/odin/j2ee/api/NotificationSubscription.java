@@ -9,4 +9,6 @@ public interface NotificationSubscription {
 	public void deactivate();
 
 	public Integer getUserId();
+
+	public String receive();
 }
