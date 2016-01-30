@@ -41,8 +41,6 @@ public class NotificationSubscriptionBean implements NotificationSubscription {
 	@Resource(mappedName = "java:/jms/topic/notifications")
 	private Topic topic;
 	
-	private JMSConsumer receiver;
-	
 	@PostConstruct
 	private void init() {
 		log.debug("new notification subscription instance @{} initialized", hashCode());
@@ -53,7 +51,7 @@ public class NotificationSubscriptionBean implements NotificationSubscription {
 		log.debug("activating user #{} notification subscription", userId);
 		id = String.valueOf(System.currentTimeMillis());
 		this.userId = userId;
-		receiver = jmsCtx.createDurableConsumer(topic, id);
+		jmsCtx.createSharedDurableConsumer(topic, id);
 		log.debug("user {} notification subscription {} activated", userId, id);
 		return id;
 	}
@@ -67,7 +65,6 @@ public class NotificationSubscriptionBean implements NotificationSubscription {
 	@Remove
 	public void deactivate() {
 		log.debug("deactivating notification subscription {}", id);
-		receiver.close();
 		jmsCtx.unsubscribe(id);
 		registry.removeSubscription(id);
 	}
@@ -77,6 +74,7 @@ public class NotificationSubscriptionBean implements NotificationSubscription {
 		log.debug("trying to receive notification using subscription: {}", id);
 		
 		try {
+			JMSConsumer receiver = jmsCtx.createSharedDurableConsumer(topic, id);
 			TextMessage msg = (TextMessage)receiver.receive(10000);
 			if (msg != null) {
 				log.debug("notification {} was successfully received", msg.getText());
