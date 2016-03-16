@@ -3,6 +3,7 @@ package odin.j2ee.ejb;
 import java.lang.invoke.MethodHandles;
 
 import javax.annotation.Resource;
+import javax.enterprise.inject.Instance;
 import javax.ejb.Stateless;
 import javax.ejb.EJBException;
 import javax.jms.JMSException;
@@ -22,7 +23,7 @@ public class NotificationSenderBean implements NotificationSender {
 	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	
 	@Inject
-	private JMSContext jmsCtx;
+	private Instance<JMSContext> jmsCtx;
 	
 	@Resource(mappedName = "java:/jms/topic/notifications")
 	private Destination notificationsTopic;
@@ -32,10 +33,10 @@ public class NotificationSenderBean implements NotificationSender {
 		try {
 			log.debug("sending notification to user #{}", userId);
 		
-			TextMessage textMsg = jmsCtx.createTextMessage(msg);
+			TextMessage textMsg = jmsCtx.get().createTextMessage(msg);
 			textMsg.setIntProperty("userId", userId);
 			
-			JMSProducer sender = jmsCtx.createProducer();
+			JMSProducer sender = jmsCtx.get().createProducer();
 			sender.send(notificationsTopic, textMsg);
 		
 			log.debug("notification was successfully sent");
