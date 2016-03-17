@@ -32,29 +32,19 @@ public class ClassicNotificationSenderBean implements ClassicNotificationSender 
 	@Resource
 	private SessionContext sessionCtx;
 	
-	private Connection conn;
-	
-	@PostConstruct
-	private void init() {
-		try {
-			conn = connFactory.createConnection();
-		} catch (JMSException jmsInitEx) {
-			throw new IllegalStateException("failed to establish JMS connection: ", jmsInitEx);
-		}
-	}
-	
 	@Override
 	public void send(Integer userId, String msg) {
 		log.debug("sending notification {} to user: {} using classic API", msg, userId);
-		try (Session session = conn.createSession()) {
+		try (Connection conn = connFactory.createConnection(); Session session = conn.createSession()) {
 			MessageProducer sender = session.createProducer(notificationsTopic);
 			TextMessage textMsg = session.createTextMessage(msg);
 			textMsg.setIntProperty("userId", userId);
 			sender.send(textMsg);
 			log.debug("notification {} was successfully sent to user: {}", msg, userId);
-			// sessionCtx.setRollbackOnly();
 		} catch (JMSException sendingFailedEx) {
 			throw new IllegalStateException("failed to send notification: ", sendingFailedEx);
 		}
+		
+		// sessionCtx.setRollbackOnly();
 	}
 }
