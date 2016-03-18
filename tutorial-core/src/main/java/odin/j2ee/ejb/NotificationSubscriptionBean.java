@@ -10,8 +10,12 @@ import javax.ejb.Stateful;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-import javax.jms.JMSConsumer;
-import javax.jms.JMSContext;
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.MessageConsumer;
+import javax.jms.TextMessage;
+import javax.jms.JMSException;
+import javax.jms.Session;
 import javax.jms.Topic;
 
 import org.slf4j.Logger;
@@ -32,11 +36,11 @@ public class NotificationSubscriptionBean implements NotificationSubscription {
 	
 	private Integer userId;
 	
-	@Inject
-	private JMSContext jmsCtx;
-	
 	@Resource(mappedName = "java:/jms/topic/notifications")
 	private Topic topic;
+	
+	@Resource(mappedName = "java:jboss/DefaultJMSConnectionFactory")
+	private ConnectionFactory connFactory;
 	
 	@PostConstruct
 	private void init() {
@@ -48,7 +52,11 @@ public class NotificationSubscriptionBean implements NotificationSubscription {
 		log.debug("activating user #{} notification subscription", userId);
 		id = String.valueOf(System.currentTimeMillis());
 		this.userId = userId;
-		jmsCtx.createSharedDurableConsumer(topic, id);
+		try (Connection conn = connFactory.createConnection(); Session session = conn.createSession(); MessageConsumer receiver = session.createDurableConsumer(topic, id)) {
+			log.debug("shared durable JMS subscription {} created", id);
+		} catch (JMSException sendingFailedEx) {
+			throw new IllegalStateException("subscription activation failed: ", sendingFailedEx);
+		}
 		log.debug("user {} notification subscription {} activated", userId, id);
 		return id;
 	}
@@ -62,20 +70,31 @@ public class NotificationSubscriptionBean implements NotificationSubscription {
 	@Remove
 	public void deactivate() {
 		log.debug("deactivating notification subscription {}", id);
-		jmsCtx.unsubscribe(id);
+		try (Connection conn = connFactory.createConnection(); Session session = conn.createSession()) {
+			session.unsubscribe(id);
+			log.debug("shared durable JMS subscription {} deactivated", id);
+		} catch (JMSException sendingFailedEx) {
+			throw new IllegalStateException("failed to deactivate subscription: ", sendingFailedEx);
+		}
 		registry.removeSubscription(id);
 	}
 
 	@Override
 	public String receive() {
 		log.debug("trying to receive notification using subscription: {}", id);
-		JMSConsumer receiver = jmsCtx.createSharedDurableConsumer(topic, id);
-		String notification = receiver.receiveBody(String.class, 10000);
-		if (notification != null) {
-			log.debug("notification {} was successfully received", notification);
-			return notification;
-		} else {
-			return "no notifications";
+		// TODO migrate to shared durable consumer
+		try (Connection conn = connFactory.createConnection(); Session session = conn.createSession(); MessageConsumer receiver = session.createDurableConsumer(topic, id)) {
+			conn.start();
+			TextMessage notificationMsg = (TextMessage)receiver.receive(10000);
+			if (notificationMsg != null) {
+				String notification = notificationMsg.getText();
+				log.debug("notification {} was successfully received", notification);
+				return notification;
+			} else {
+				return "no notifications";
+			}
+		} catch (JMSException sendingFailedEx) {
+			throw new IllegalStateException("failed to receive notification: ", sendingFailedEx);
 		}
 	}
 }
