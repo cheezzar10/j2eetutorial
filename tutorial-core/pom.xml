@@ -8,7 +8,6 @@
 		<version>1.0</version>
 	</parent>
 
-	<groupId>com.odin.j2ee</groupId>
 	<artifactId>tutorial-core</artifactId>
 	<version>${appVersion}</version>
 	<packaging>ejb</packaging>

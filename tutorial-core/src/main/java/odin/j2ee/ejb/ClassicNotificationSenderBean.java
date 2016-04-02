@@ -2,7 +2,6 @@ package odin.j2ee.ejb;
 
 import java.lang.invoke.MethodHandles;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.ejb.Stateless;
 import javax.ejb.SessionContext;
