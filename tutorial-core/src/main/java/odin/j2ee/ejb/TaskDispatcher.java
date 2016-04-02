@@ -21,6 +21,7 @@ import odin.j2ee.model.TaskActivation;
 		@ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
 		@ActivationConfigProperty(propertyName = "destinationLookup", propertyValue = "java:/jms/queue/tasks"),
 	})
+// TODO rename to TaskExecutor
 public class TaskDispatcher implements MessageListener {
 	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	

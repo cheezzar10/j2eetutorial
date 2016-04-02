@@ -59,7 +59,9 @@ $ standalone.sh -c standalone-full.xml
   
   sending notification using curl
   
-  curl -X POST -d "userId=1&message=3%3Atext" http://localhost:8080/tutorial/notification/send
+  $ curl -X POST -d "userId=1&message=3%3Atext" http://localhost:8080/tutorial/notification/send
+  
+  $ curl -X POST -H "Content-Type: text/plain" -d "Configure Host" http://localhost:8080/tutorial/rs/tasks
   
   userId=1&message=1%3Acreating&message=1%3Acreated
   
