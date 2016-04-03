@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import odin.j2ee.api.TaskManager;
-import odin.j2ee.model.TaskActivation;
+import odin.j2ee.model.TaskExecution;
 
 @Stateless(name = "TaskManager")
 public class TaskManagerBean implements TaskManager {
@@ -29,9 +29,9 @@ public class TaskManagerBean implements TaskManager {
 	private Destination tasksQueue;
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
-	public void activate(TaskActivation task) {
-		log.debug("sending execution request for task: {}", task.getTaskName());
+	public void execute(TaskExecution execution) {
+		log.debug("submitting task {} execution request", execution.getTaskName());
 		JMSProducer sender = jmsCtx.get().createProducer();
-		sender.send(tasksQueue, task);
+		sender.send(tasksQueue, execution);
 	}
 }

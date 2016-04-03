@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import odin.j2ee.api.TaskManager;
-import odin.j2ee.model.TaskActivation;
+import odin.j2ee.model.TaskExecution;
 
 @Path("/tasks")
 public class TaskResource {
@@ -21,10 +21,9 @@ public class TaskResource {
 	private TaskManager taskMgr;
 	
 	@POST
-	@Consumes("text/plain")
-	public void activate(String taskName) {
-		log.debug("creating new task: {}", taskName);
-		TaskActivation task = new TaskActivation(taskName);
-		taskMgr.activate(task);
+	@Consumes("application/json")
+	public void execute(TaskExecution execution) {
+		log.debug("received execution request for task: {} with parameters: {}", execution.getTaskName(), execution.getTaskParams());
+		taskMgr.execute(execution);
 	}
 }

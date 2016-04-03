@@ -1,7 +1,7 @@
 package odin.j2ee.api;
 
-import odin.j2ee.model.TaskActivation;
+import odin.j2ee.model.TaskExecution;
 
 public interface TaskManager {
-	void activate(TaskActivation task);
+	void execute(TaskExecution task);
 }

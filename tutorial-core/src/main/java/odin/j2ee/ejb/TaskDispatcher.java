@@ -15,7 +15,7 @@ import javax.jms.ObjectMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import odin.j2ee.model.TaskActivation;
+import odin.j2ee.model.TaskExecution;
 
 @MessageDriven(name = "TaskDispatcher", activationConfig = {
 		@ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
@@ -28,11 +28,10 @@ public class TaskDispatcher implements MessageListener {
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void onMessage(Message message) {
-		ObjectMessage taskActMsg = (ObjectMessage)message;
-		
+		ObjectMessage execMsg = (ObjectMessage)message;
 		try {
-			TaskActivation taskAct = taskActMsg.getBody(TaskActivation.class);
-			log.debug("starting task: {}", taskAct.getTaskName());
+			TaskExecution execution = execMsg.getBody(TaskExecution.class);
+			log.debug("performing task {} execution request with parameters: {}", execution.getTaskName(), execution.getTaskParams());
 			// TODO find task definition and start it using TaskRegistry singleton
 		} catch (JMSException jmsEx) {
 			throw new EJBException("task activation failed", jmsEx);

@@ -63,6 +63,8 @@ $ standalone.sh -c standalone-full.xml
   
   $ curl -X POST -H "Content-Type: text/plain" -d "Configure Host" http://localhost:8080/tutorial/rs/tasks
   
+  $ curl -X POST -H "Content-Type: application/json" -d '{ "taskName": "Install Package", "taskParams": { "packageId": 126, "hostId": 2 } }' http://localhost:8080/tutorial/rs/tasks
+  
   userId=1&message=1%3Acreating&message=1%3Acreated
   
   start JBoss binding to all interfaces standaloane.sh -b 0.0.0.0 -c standalone-full.sh
