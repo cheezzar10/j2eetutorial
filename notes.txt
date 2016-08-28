@@ -5,6 +5,8 @@ $ standalone.sh -c standalone-full.xml
   creating notifications topic using JBoss CLI
   
 /] jms-topic add --topic-address=notifications --entries=java:/jms/topic/notifications
+/] jms-queue add --queue-address=notifications --entries=java:/jms/queue/notifications --durable=false
+/] jms-queue add --queue-address=tasks --entries=java:/jms/queue/tasks --durable=false
 
   NotificationSubbscriptionRegistryBean
   NotificationSubscriptionBean - stateful bean which holds durable subscription on notifications topic
@@ -30,7 +32,7 @@ $ standalone.sh -c standalone-full.xml
   remove servlet and change it to restful service
   
   the setting will allow to create non-shared durable subscriptions
-  /subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra:write-attribute(name="client-id",value="wildfly")
+  /subsystem=messaging-activemq/server=default/pooled-connection-factory=activemq-ra:write-attribute(name="client-id",value="wildfly")
   
   change sending logic to doPost
   
