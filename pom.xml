@@ -14,6 +14,7 @@
 		<module>tutorial-ui</module>
 		<module>tutorial-app</module>
 		<module>tutorial-clnt</module>
+		<module>service-dns</module>
 	</modules>
 	
 	<build>

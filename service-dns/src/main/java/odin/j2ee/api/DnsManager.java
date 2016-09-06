@@ -7,4 +7,6 @@ public interface DnsManager {
 	public void createDomain(String domainName);
 	
 	public void removeDomain(String domainName);
+	
+	public void recordRemoved(int recId);
 }

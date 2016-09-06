@@ -30,4 +30,11 @@ public class DnsManagerBean implements DnsManager {
 		DnsRecordManager dnsRecMgr = locator.getManager(DnsRecordManager.class);
 		dnsRecMgr.removeRecord(1);
 	}
+
+	@Override
+	public void recordRemoved(int recId) {
+		log.debug("marking record {} as removed", recId);
+		DnsRecordManager dnsRecMgr = locator.getManager(DnsRecordManager.class);
+		dnsRecMgr.removeRecordFromStore(recId);
+	}
 }
