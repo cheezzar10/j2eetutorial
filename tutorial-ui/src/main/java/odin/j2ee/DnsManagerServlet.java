@@ -1,6 +1,7 @@
 package odin.j2ee;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.invoke.MethodHandles;
 
 import javax.ejb.EJB;
@@ -27,5 +28,8 @@ public class DnsManagerServlet extends HttpServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		log.debug("interacting with DNS manager");
 		dnsMgr.removeDomain("foo.bar");
+		
+		PrintWriter out = resp.getWriter();
+		out.println("done");
 	}
 }

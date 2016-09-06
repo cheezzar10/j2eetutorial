@@ -19,7 +19,7 @@ public class DnsServiceBean implements DnsService {
 			props.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
 			InitialContext context = new InitialContext(props);
 			
-			DnsManager dnsMgr = (DnsManager)context.lookup("ejb:tutorial-app/tutorial-core//DnsManager");
+			DnsManager dnsMgr = (DnsManager)context.lookup("ejb:tutorial-app/tutorial-core//DnsManager!" + DnsManager.class.getName());
 			dnsMgr.recordRemoved(1);
 		} catch (NamingException ne) {
 			throw new IllegalStateException("dns manager call failed: ", ne);

@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
 
+import javax.ejb.AccessTimeout;
 import javax.ejb.EJBException;
 import javax.ejb.SessionSynchronization;
 import javax.ejb.Stateful;
@@ -20,6 +21,7 @@ import odin.dns.api.DnsService;
 import odin.j2ee.api.DnsRecordManager;
 
 @Stateful(name = "DnsRecordManager")
+@AccessTimeout(0)
 public class DnsRecordManagerBean implements DnsRecordManager, SessionSynchronization {
 	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	
@@ -35,7 +37,7 @@ public class DnsRecordManagerBean implements DnsRecordManager, SessionSynchroniz
 			props.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
 			InitialContext context = new InitialContext(props);
 			
-			DnsService service = (DnsService)context.lookup("ejb:service-dns//DnsService");
+			DnsService service = (DnsService)context.lookup("ejb:/service-dns//DnsService!"+DnsService.class.getName());
 			service.onRemoveRecord("A", "foo.bar");
 		} catch (NamingException ne) {
 			throw new IllegalStateException("dns service call failed: ", ne);
@@ -55,7 +57,7 @@ public class DnsRecordManagerBean implements DnsRecordManager, SessionSynchroniz
 	@Override
 	public void beforeCompletion() throws EJBException, RemoteException {
 		log.debug("DNSRECMGR @{} performing DNS records deletion", hashCode());
-		log.debug("DNSRECMGR @{} {} DNS records deleted", hashCode(), removedRecIds);
+		log.debug("DNSRECMGR @{} {} DNS records deleted", hashCode(), removedRecIds.size());
 	}
 
 	@Override

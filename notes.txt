@@ -88,3 +88,24 @@ $ standalone.sh -c standalone-full.xml
   
   1454175385735
   
+  remote calls security settings
+  <secret value="cGFzc3dvcmQ=" />
+  <secret value="cGFzc3dvcmQ=" />
+   
+ Management node settings
+   
+ standalone.sh -c standalone-full.xml  -Djboss.socket.binding.port-offset=100 -Djboss.node.name=mgmt
+ jboss-cli.sh -c controller=localhost:10090
+ /core-service=management/security-realm=ejb:add()
+ /core-service=management/security-realm=ejb/server-identity=secret:add(value="cGFzc3dvcmQ=")
+ /socket-binding-group=standard-sockets/remote-destination-outbound-socket-binding=service-ejb:add(host=localhost, port=8080)
+ /subsystem=remoting/remote-outbound-connection=service-ejb:add(outbound-socket-binding-ref=service-ejb, protocol=http-remoting, security-realm=ejb, username=ejb)
+ 
+ 
+ Service node settings
+ 
+ standalone.sh -c standalone-full.xml -Djboss.node.name=service
+ /core-service=management/security-realm=ejb:add()
+ /core-service=management/security-realm=ejb/server-identity=secret:add(value="cGFzc3dvcmQ=")
+ /socket-binding-group=standard-sockets/remote-destination-outbound-socket-binding=mgmt-ejb:add(host=localhost, port=8180)
+ /subsystem=remoting/remote-outbound-connection=mgmt-ejb:add(outbound-socket-binding-ref=mgmt-ejb, protocol=http-remoting, security-realm=ejb, username=ejb)
