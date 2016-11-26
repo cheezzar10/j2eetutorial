@@ -24,7 +24,6 @@ public class DnsRecordManagerBean implements DnsRecordManager, SessionSynchroniz
 	public void removeRecord(int recId) {
 		log.debug("DNSRECMGR @{} marking DNS record #{} as removed", hashCode(), recId);
 		removedRecIds.add(recId);
-		// TODO make remote DNS service call here
 	}
 
 	@Override
@@ -34,12 +33,15 @@ public class DnsRecordManagerBean implements DnsRecordManager, SessionSynchroniz
 
 	@Override
 	public void afterCompletion(boolean committed) throws EJBException, RemoteException {
-		// Nothing to do
+		log.debug("DNSRECMGR @{} tx {}", hashCode(), committed ? "committed" : "rolledback");
 	}
 
 	@Override
 	public void beforeCompletion() throws EJBException, RemoteException {
 		log.debug("DNSRECMGR @{} performing DNS records deletion", hashCode());
+		for (Integer recId : removedRecIds) {
+			log.debug("DNSRECMGR @{} removing DNS record #{}", hashCode(), recId);
+		}
 		log.debug("DNSRECMGR @{} {} DNS records deleted", hashCode(), removedRecIds);
 	}
 }

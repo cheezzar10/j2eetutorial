@@ -1,4 +1,4 @@
-package odin.j2ee.ejb;
+package odin.j2ee.api;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
@@ -14,9 +14,6 @@ import javax.websocket.Session;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import odin.j2ee.api.DispatchingFailedException;
-import odin.j2ee.api.NotificationSubscription;
 
 public class NotificationChannel {
 	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import odin.j2ee.api.DispatchingFailedException;
+import odin.j2ee.api.NotificationChannel;
 
 // TODO rename to SubscriptionChannels
 public class UserSubscriptions {

@@ -18,9 +18,9 @@ import javax.websocket.server.ServerEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import odin.j2ee.api.NotificationChannel;
 import odin.j2ee.api.NotificationSubscription;
 import odin.j2ee.api.NotificationSubscriptionRegistry;
-import odin.j2ee.ejb.NotificationChannel;
 
 // TODO rename to NotificationSubscriptionEndpoint
 @ServerEndpoint("/notifications/subscription/{subscriptionId}")

@@ -16,11 +16,6 @@
 	
 	<dependencies>
 		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.jboss.spec.javax.servlet</groupId>
 			<artifactId>jboss-servlet-api_3.1_spec</artifactId>
 			<scope>provided</scope>
@@ -33,6 +28,7 @@
 		<dependency>
 			<groupId>org.jboss.spec.javax.ws.rs</groupId>
 			<artifactId>jboss-jaxrs-api_2.0_spec</artifactId>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>javax.inject</groupId>
@@ -48,6 +44,7 @@
 			<groupId>com.odin.j2ee</groupId>
 			<artifactId>tutorial-core</artifactId>
 			<version>${appVersion}</version>
+			<type>ejb-client</type>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
