@@ -88,3 +88,9 @@ $ standalone.sh -c standalone-full.xml
   
   1454175385735
   
+  LogbackCtl proto
+  
+  logback-ctl --context=tutorial-core --logger=odin.j2ee.ejb.DnsRecordManagerBean --level
+  logback-ctl --context=tutorial-core --logger=odin.j2ee.ejb.DnsRecordManagerBean --level=TRACE
+  
+  java -cp tutorial-clnt/target/classes:/Volumes/Data/home/andrey/Applications/wildfly-10.1.0.Final/bin/client/jboss-client.jar odin.j2ee.clnt.JbossLogbackCtl

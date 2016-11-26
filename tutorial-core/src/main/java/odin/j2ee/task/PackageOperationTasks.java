@@ -4,6 +4,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.ejb.Lock;
 import javax.ejb.LockType;
 import javax.ejb.Singleton;
@@ -13,6 +14,8 @@ import javax.ejb.TransactionAttributeType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.LoggerContext;
 
 @Singleton(name = "PackageInstallationTask")
 @Startup
@@ -24,6 +27,12 @@ public class PackageOperationTasks {
 	@PostConstruct
 	private void init() {
 		log.debug("package task handlers instance {} initialized", this);
+	}
+	
+	@PreDestroy
+	private void onDestroy() {
+		LoggerContext logCtx = (LoggerContext)LoggerFactory.getILoggerFactory();
+		logCtx.stop();
 	}
 	
 	@Task(name = "Install Package")

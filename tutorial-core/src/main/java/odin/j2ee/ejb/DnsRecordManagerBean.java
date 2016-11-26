@@ -33,15 +33,15 @@ public class DnsRecordManagerBean implements DnsRecordManager, SessionSynchroniz
 
 	@Override
 	public void afterCompletion(boolean committed) throws EJBException, RemoteException {
-		log.debug("DNSRECMGR @{} tx {}", hashCode(), committed ? "committed" : "rolledback");
+		log.trace("DNSRECMGR @{} tx {}", hashCode(), committed ? "committed" : "rolledback");
 	}
 
 	@Override
 	public void beforeCompletion() throws EJBException, RemoteException {
-		log.debug("DNSRECMGR @{} performing DNS records deletion", hashCode());
+		log.trace("DNSRECMGR @{} performing DNS records deletion", hashCode());
 		for (Integer recId : removedRecIds) {
 			log.debug("DNSRECMGR @{} removing DNS record #{}", hashCode(), recId);
 		}
-		log.debug("DNSRECMGR @{} {} DNS records deleted", hashCode(), removedRecIds);
+		log.trace("DNSRECMGR @{} {} DNS records deleted", hashCode(), removedRecIds);
 	}
 }
