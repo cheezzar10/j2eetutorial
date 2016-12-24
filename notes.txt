@@ -94,3 +94,27 @@ $ standalone.sh -c standalone-full.xml
   logback-ctl --context=tutorial-core --logger=odin.j2ee.ejb.DnsRecordManagerBean --level=TRACE
   
   java -cp tutorial-clnt/target/classes:/Volumes/Data/home/andrey/Applications/wildfly-10.1.0.Final/bin/client/jboss-client.jar odin.j2ee.clnt.JbossLogbackCtl
+  
+  starting another wildfly instance on the same machine
+  
+  bin/standalone.sh -Djboss.socket.binding.port-offset=2000
+  
+  checking opened connections
+  
+  lsof -p 11129 | grep TCP
+  
+  running REST client test
+  
+  java -cp bin/tutorial-clnt.jar
+  		:lib/activation.jar
+  		:lib/commons-codec.jar
+  		:lib/commons-io.jar
+  		:lib/commons-lang3.jar
+  		:lib/commons-logging.jar
+  		:lib/httpclient.jar
+  		:lib/httpcore.jar
+  		:lib/jboss-jaxrs-api_2.0_spec.jar
+  		:lib/resteasy-client.jar
+  		:lib/resteasy-jaxrs.jar
+  		:lib/jboss-logging.jar
+  		:lib/jboss-annotations-api_1.2_spec.jar odin.j2ee.clnt.RestClient

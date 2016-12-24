@@ -17,6 +17,10 @@ import odin.j2ee.model.TaskExecution;
 public class TaskResource {
 	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	
+	public TaskResource() {
+		log.debug("new TaskResource instance created  @{}", this);
+	}
+	
 	@EJB
 	private TaskManager taskMgr;
 	
