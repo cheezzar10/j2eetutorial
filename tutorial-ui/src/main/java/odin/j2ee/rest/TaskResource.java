@@ -28,6 +28,14 @@ public class TaskResource {
 	@Consumes("application/json")
 	public void execute(TaskExecution execution) {
 		log.debug("received execution request for task: {} with parameters: {}", execution.getTaskName(), execution.getTaskParams());
+		
+		try {
+			Thread.sleep(5_000);
+		} catch (InterruptedException interruptedEx) {
+			Thread.currentThread().interrupt();
+		}
+		
+		log.debug("sending task execution request");
 		taskMgr.execute(execution);
 	}
 }

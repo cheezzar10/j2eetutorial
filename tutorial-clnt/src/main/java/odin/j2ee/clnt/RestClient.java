@@ -4,55 +4,72 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.InvocationCallback;
 import javax.ws.rs.core.Response;
 
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 
 public class RestClient {
+	private static final int CONNECTIONS_LIMIT = 32;
 	private static final int ITERATIONS_COUNT = 16;
 	private static final int CLIENTS_COUNT = 4;
 	
 	public static void main(String[] args) throws Exception {
-		ClientBuilder clientBldr = ClientBuilder.newBuilder();
-		((ResteasyClientBuilder)clientBldr).connectionPoolSize(8);
-		Client client = clientBldr.build();
+		ResteasyClientBuilder clientBldr = (ResteasyClientBuilder) ClientBuilder.newBuilder();
+		clientBldr.connectionPoolSize(CONNECTIONS_LIMIT);
+		clientBldr.maxPooledPerRoute(16);
+		ResteasyClient client = (ResteasyClient) clientBldr.build();
 		
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
 		
+		int reqCount = ITERATIONS_COUNT * CLIENTS_COUNT;
+		CountDownLatch done = new CountDownLatch(reqCount);
+		InvocationCallback<Response> reqCompletionCallback = new TaskExecutionRequestCallback(done);
 		Thread[] threads = new Thread[CLIENTS_COUNT];
 		for (int tid = 0;tid < CLIENTS_COUNT;++tid) {
 			threads[tid] = new Thread(() -> {
 				for (int i = 0;i < ITERATIONS_COUNT;++i) {
 					// reader.readLine();
-					executeTask(client);
+					executeTask(client, reqCompletionCallback);
 				}
 			});
-			threads[tid].start();
 		}
 		
+		long start = System.currentTimeMillis();
+		
 		for (Thread thread : threads) {
-			thread.join();
+			thread.start();
 		}
+		
+		System.out.println("all task execution requests have been sent - waiting for responses");
+		done.await();
+		
+		long stop = System.currentTimeMillis();
+		
+		System.out.printf("%d requests completed in %d ms%n", reqCount, stop - start);
+		
+		// TODO close client instead
+		System.out.println("sending shutdown signal to async request execution service");
+		client.asyncInvocationExecutor().shutdown();
 		
 		System.out.print("press ENTER to exit...");
 		reader.readLine();
 	}
 	
-	private static void executeTask(Client client) {
+	private static void executeTask(Client client, InvocationCallback<Response> reqCompletionCallback) {
 		Map<String, String> taskParams = new HashMap<>();
 		taskParams.put("pkgName", "agent");
 		String payload = createExecuteTaskRequestPayload("Install Package", taskParams);
-		System.out.printf("payload: %s%n", payload);
-		Response response = client.target("http://localhost:8080/tutorial/rs/tasks")
+		client.target("http://localhost:8080/tutorial/rs/tasks")
 				.request()
-				.post(Entity.json(payload));
-		int status = response.getStatus();
-		System.out.printf("response status: %d%n", status);
-		response.close();
+				.async()
+				.post(Entity.json(payload), reqCompletionCallback);
 	}
 
 	private static String createExecuteTaskRequestPayload(String taskName, Map<String, String> taskParams) {
