@@ -24,15 +24,22 @@ public class NotificationChannel {
 	
 	private final String id;
 	
+	private final Integer userId;
+	
 	private volatile CompletableFuture<Boolean> ready;
 	
-	public NotificationChannel(NotificationSubscription subscription, String id) {
+	public NotificationChannel(NotificationSubscription subscription, String id, Integer userId) {
 		this.subscription = subscription;
 		this.id = id;
+		this.userId = userId;
 	}
 	
 	public String getId() {
 		return id;
+	}
+	
+	public Integer getUserId() {
+		return userId;
 	}
 	
 	public void dispatch(String notification) throws DispatchingFailedException {

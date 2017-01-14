@@ -6,7 +6,7 @@ import javax.ejb.Local;
 
 @Local
 public interface NotificationSubscriptionRegistry {
-	public String subscribe(Integer userId);
+	public String subscribe(Integer userId) throws SubscriptionActivationFailedException;
 	
 	public NotificationChannel getSubscription(String subscriptionId);
 	
@@ -15,8 +15,4 @@ public interface NotificationSubscriptionRegistry {
 	public Set<String> getUserChannelIds(Integer userId);
 
 	public void dispatchNotification(String subscriptionId, String text) throws DispatchingFailedException;
-	
-	public void removeDeactivatedSubscriptions();
-
-	public void registerSubscription(String subscriptionId, NotificationSubscription subscription);
 }

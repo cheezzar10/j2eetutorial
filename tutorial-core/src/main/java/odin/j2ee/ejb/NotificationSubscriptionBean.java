@@ -23,6 +23,9 @@ import org.slf4j.LoggerFactory;
 
 import odin.j2ee.api.NotificationSubscription;
 import odin.j2ee.api.NotificationSubscriptionRegistry;
+import odin.j2ee.api.ReceiversLimitExceededException;
+import odin.j2ee.api.ReceivingFailedException;
+import odin.j2ee.api.SubscriptionActivationFailedException;
 
 @Stateful(name = "NotificationSubscription")
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
@@ -38,8 +41,6 @@ public class NotificationSubscriptionBean implements NotificationSubscription {
 	
 	private String id;
 	
-	private Integer userId;
-	
 	@Resource(mappedName = "java:/jms/topic/notifications")
 	private Topic topic;
 	
@@ -52,23 +53,16 @@ public class NotificationSubscriptionBean implements NotificationSubscription {
 	}
 	
 	@Override
-	public String activate(Integer userId) {
+	public String activate(Integer userId) throws SubscriptionActivationFailedException {
 		log.debug("activating user #{} notification subscription", userId);
 		id = String.valueOf(System.currentTimeMillis());
-		this.userId = userId;
 		try (Connection conn = connFactory.createConnection(); Session session = conn.createSession(); MessageConsumer receiver = session.createDurableConsumer(topic, id)) {
 			log.debug("shared durable JMS subscription {} created", id);
-		} catch (JMSException sendingEx) {
-			throw new IllegalStateException("subscription activation failed: ", sendingEx);
+		} catch (JMSException jmsEx) {
+			throw new SubscriptionActivationFailedException(id, jmsEx);
 		}
 		log.debug("user {} notification subscription {} activated", userId, id);
-		registry.registerSubscription(id, this);
 		return id;
-	}
-	
-	@Override
-	public Integer getUserId() {
-		return userId;
 	}
 	
 	@Override
@@ -85,12 +79,12 @@ public class NotificationSubscriptionBean implements NotificationSubscription {
 	}
 
 	@Override
-	public String receive() {
+	public String receive() throws ReceiversLimitExceededException, ReceivingFailedException {
 		log.debug("trying to receive notification using subscription: {}", id);
 		
 		int activeReceivers = receivers.get();
 		if (activeReceivers >= RECEIVERS_LIMIT) {
-			throw new IllegalStateException("active receivers limit exceeded");
+			throw new ReceiversLimitExceededException(RECEIVERS_LIMIT);
 		}
 		
 		receivers.incrementAndGet();
@@ -105,7 +99,7 @@ public class NotificationSubscriptionBean implements NotificationSubscription {
 				return "no notifications";
 			}
 		} catch (JMSException receivingEx) {
-			throw new IllegalStateException("failed to receive notification: ", receivingEx);
+			throw new ReceivingFailedException(id, receivingEx);
 		} finally {
 			receivers.decrementAndGet();
 		}
