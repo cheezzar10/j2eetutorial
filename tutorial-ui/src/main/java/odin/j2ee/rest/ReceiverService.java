@@ -24,7 +24,7 @@ public class ReceiverService {
 	@Path("/{userId}")
 	public String receiveNotificationForUser(@PathParam("userId") Integer userId) {
 		log.debug("trying to receive notification for user: {}", userId);
-		// return receiver.receive(userId);
-		return receiver.unsubscribe();
+		return receiver.receive(userId);
+		// return receiver.unsubscribe();
 	}
 }

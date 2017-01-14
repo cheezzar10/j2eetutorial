@@ -1,6 +1,7 @@
 package odin.j2ee.ejb;
 
 import java.lang.invoke.MethodHandles;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -28,6 +29,10 @@ import odin.j2ee.api.NotificationSubscriptionRegistry;
 public class NotificationSubscriptionBean implements NotificationSubscription {
 	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	
+	private static final int RECEIVERS_LIMIT = 2;
+	
+	private static final AtomicInteger receivers = new AtomicInteger(0);
+	
 	@EJB
 	private NotificationSubscriptionRegistry registry;
 	
@@ -53,10 +58,11 @@ public class NotificationSubscriptionBean implements NotificationSubscription {
 		this.userId = userId;
 		try (Connection conn = connFactory.createConnection(); Session session = conn.createSession(); MessageConsumer receiver = session.createDurableConsumer(topic, id)) {
 			log.debug("shared durable JMS subscription {} created", id);
-		} catch (JMSException sendingFailedEx) {
-			throw new IllegalStateException("subscription activation failed: ", sendingFailedEx);
+		} catch (JMSException sendingEx) {
+			throw new IllegalStateException("subscription activation failed: ", sendingEx);
 		}
 		log.debug("user {} notification subscription {} activated", userId, id);
+		registry.registerSubscription(id, this);
 		return id;
 	}
 	
@@ -72,8 +78,8 @@ public class NotificationSubscriptionBean implements NotificationSubscription {
 		try (Connection conn = connFactory.createConnection(); Session session = conn.createSession()) {
 			session.unsubscribe(id);
 			log.debug("shared durable JMS subscription {} deactivated", id);
-		} catch (JMSException sendingFailedEx) {
-			throw new IllegalStateException("failed to deactivate subscription: ", sendingFailedEx);
+		} catch (JMSException unsubscribingEx) {
+			throw new IllegalStateException("failed to deactivate subscription: ", unsubscribingEx);
 		}
 		registry.removeSubscription(id);
 	}
@@ -81,7 +87,13 @@ public class NotificationSubscriptionBean implements NotificationSubscription {
 	@Override
 	public String receive() {
 		log.debug("trying to receive notification using subscription: {}", id);
-		// TODO migrate to shared durable consumer
+		
+		int activeReceivers = receivers.get();
+		if (activeReceivers >= RECEIVERS_LIMIT) {
+			throw new IllegalStateException("active receivers limit exceeded");
+		}
+		
+		receivers.incrementAndGet();
 		try (Connection conn = connFactory.createConnection(); Session session = conn.createSession(); MessageConsumer receiver = session.createDurableConsumer(topic, id)) {
 			conn.start();
 			TextMessage notificationMsg = (TextMessage)receiver.receive(10000);
@@ -92,8 +104,10 @@ public class NotificationSubscriptionBean implements NotificationSubscription {
 			} else {
 				return "no notifications";
 			}
-		} catch (JMSException sendingFailedEx) {
-			throw new IllegalStateException("failed to receive notification: ", sendingFailedEx);
+		} catch (JMSException receivingEx) {
+			throw new IllegalStateException("failed to receive notification: ", receivingEx);
+		} finally {
+			receivers.decrementAndGet();
 		}
 	}
 }

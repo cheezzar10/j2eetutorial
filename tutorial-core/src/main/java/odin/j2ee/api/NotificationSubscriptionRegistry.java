@@ -15,4 +15,8 @@ public interface NotificationSubscriptionRegistry {
 	public Set<String> getUserChannelIds(Integer userId);
 
 	public void dispatchNotification(String subscriptionId, String text) throws DispatchingFailedException;
+	
+	public void removeDeactivatedSubscriptions();
+
+	public void registerSubscription(String subscriptionId, NotificationSubscription subscription);
 }

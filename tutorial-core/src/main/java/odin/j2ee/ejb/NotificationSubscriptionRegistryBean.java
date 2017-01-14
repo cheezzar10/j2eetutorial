@@ -1,6 +1,9 @@
 package odin.j2ee.ejb;
 
 import java.lang.invoke.MethodHandles;
+import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,11 +14,14 @@ import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Lock;
 import javax.ejb.LockType;
+import javax.ejb.Schedule;
 import javax.ejb.SessionContext;
 import javax.ejb.Singleton;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 
+import org.apache.commons.collections4.BidiMap;
+import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +37,11 @@ public class NotificationSubscriptionRegistryBean implements NotificationSubscri
 	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	
 	private Map<String, NotificationChannel> subscriptions = new ConcurrentHashMap<>();
-	private Map<Integer, UserSubscriptions> userSubscriptions = new HashMap<>(); 
+	private Map<Integer, UserSubscriptions> userSubscriptions = new HashMap<>();
+	
+	private BidiMap<String, WeakReference<NotificationSubscription> > subscriptionRefs = new DualHashBidiMap<>();
+	
+	private ReferenceQueue<NotificationSubscription> subscriptionRefsQueue = new ReferenceQueue<>();
 	
 	@Resource
 	private SessionContext sessionCtx;
@@ -52,6 +62,16 @@ public class NotificationSubscriptionRegistryBean implements NotificationSubscri
 		}
 		userSubs.add(channel);
 		return subscriptionId;
+	}
+	
+	@Override
+	@Lock(LockType.WRITE)
+	public void registerSubscription(String subscriptionId, NotificationSubscription subscription) {
+		log.debug("registering notification subscription reference @{}", subscription.hashCode());
+		
+		subscriptionRefs.computeIfAbsent(subscriptionId, (sid) -> {
+			return new WeakReference<>(subscription, subscriptionRefsQueue);
+		});
 	}
 	
 	@Override
@@ -108,5 +128,27 @@ public class NotificationSubscriptionRegistryBean implements NotificationSubscri
 			return channels.getIds();
 		}
 		return Collections.emptySet();
+	}
+
+	@Override
+	@Lock(LockType.WRITE)
+	public void removeDeactivatedSubscriptions() {
+		log.debug("performing deactivated channels cleanup");
+		Reference<? extends NotificationSubscription> ref = subscriptionRefsQueue.poll();
+		BidiMap<WeakReference<NotificationSubscription>, String> subscriptionIds = subscriptionRefs.inverseBidiMap();
+		int cleanedUp = 0;
+		while (ref != null) {
+			String deactivatedSubscriptionId = subscriptionIds.remove(ref);
+			subscriptionRefs.remove(deactivatedSubscriptionId);
+			removeSubscription(deactivatedSubscriptionId);
+			cleanedUp++;
+			ref = subscriptionRefsQueue.poll();
+		}
+		log.debug("cleaned up {} deactivated subscriptions", cleanedUp);
+	}
+	
+	@Schedule(hour = "*", minute = "*/1", persistent = false)
+	private void removeDeactivatedsubscriptionsPeriodically() {
+		sessionCtx.getBusinessObject(NotificationSubscriptionRegistry.class).removeDeactivatedSubscriptions();
 	}
 }
