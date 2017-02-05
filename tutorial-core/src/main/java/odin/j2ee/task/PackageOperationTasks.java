@@ -1,6 +1,8 @@
 package odin.j2ee.task;
 
 import java.lang.invoke.MethodHandles;
+import java.lang.management.ManagementFactory;
+import java.rmi.registry.LocateRegistry;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -11,6 +13,10 @@ import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.management.MBeanServer;
+import javax.management.remote.JMXConnectorServer;
+import javax.management.remote.JMXConnectorServerFactory;
+import javax.management.remote.JMXServiceURL;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +33,17 @@ public class PackageOperationTasks {
 	@PostConstruct
 	private void init() {
 		log.debug("package task handlers instance {} initialized", this);
+		
+		MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+		try {
+			LocateRegistry.createRegistry(1099);
+			
+			JMXConnectorServer jmxConnServer = JMXConnectorServerFactory.newJMXConnectorServer(
+					new JMXServiceURL("service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi"), null, mBeanServer);
+			jmxConnServer.start();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@PreDestroy
