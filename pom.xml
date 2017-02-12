@@ -8,14 +8,14 @@
 	<packaging>pom</packaging>
 
 	<name>tutorial</name>
-	
+
 	<modules>
 		<module>tutorial-core</module>
 		<module>tutorial-ui</module>
 		<module>tutorial-app</module>
 		<module>tutorial-clnt</module>
 	</modules>
-	
+
 	<build>
 		<pluginManagement>
 			<plugins>
@@ -52,16 +52,24 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<appVersion>7.0.0</appVersion>
+		<wflyVersion>10.1.0.Final</wflyVersion>
 	</properties>
-	
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
 				<groupId>org.wildfly.bom</groupId>
 				<artifactId>wildfly-javaee7</artifactId>
-				<version>10.1.0.Final</version>
+				<version>${wflyVersion}</version>
 				<type>pom</type>
 				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.arquillian</groupId>
+				<artifactId>arquillian-bom</artifactId>
+				<version>1.1.12.Final</version>
+				<scope>import</scope>
+				<type>pom</type>
 			</dependency>
 			<dependency>
 				<groupId>ch.qos.logback</groupId>

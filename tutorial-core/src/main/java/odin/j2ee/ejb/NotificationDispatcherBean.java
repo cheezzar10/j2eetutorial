@@ -23,7 +23,7 @@ import odin.j2ee.api.NotificationSubscriptionRegistry;
 
 @MessageDriven(name = "NotificationDispatcher", activationConfig = {
 		@ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-		@ActivationConfigProperty(propertyName = "destinationLookup", propertyValue = "java:/jms/queue/notifications"),
+		@ActivationConfigProperty(propertyName = "destinationLookup", propertyValue = "java:jms/queue/notifications"),
 	})
 public class NotificationDispatcherBean implements MessageListener {
 	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

@@ -30,7 +30,7 @@ import odin.j2ee.api.NotificationSubscriptionRegistry;
 
 @MessageDriven(name = "MessagesDetector", activationConfig = {
 	@ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Topic"),
-	@ActivationConfigProperty(propertyName = "destinationLookup", propertyValue = "java:/jms/topic/notifications"),
+	@ActivationConfigProperty(propertyName = "destinationLookup", propertyValue = "java:jms/topic/notifications"),
 	@ActivationConfigProperty(propertyName = "maxSession", propertyValue = "1")
 })
 // TODO rename to NotificationDistributorBean

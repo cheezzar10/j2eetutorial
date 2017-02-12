@@ -26,7 +26,7 @@ public class NotificationReceiverBean implements NotificationReceiver {
 	@Inject
 	private JMSContext jmsCtx;
 	
-	@Resource(mappedName = "java:/jms/topic/notifications")
+	@Resource(lookup = "java:/jms/topic/notifications")
 	private Topic topic;
 	
 	@TransactionAttribute(TransactionAttributeType.SUPPORTS)
