@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<messaging-deployment xmlns="urn:jboss:messaging-activemq-deployment:1.0">
+	<server name="default">
+		<jms-destinations>
+			<jms-queue name="notifications">
+				<entry name="jms/queue/notifications" />
+			</jms-queue>
+			<jms-queue name="tasks">
+				<entry name="jms/queue/tasks" />
+			</jms-queue>
+			<jms-topic name="notifications">
+				<entry name="jms/topic/notifications" />
+			</jms-topic>
+		</jms-destinations>
+	</server>
+</messaging-deployment>

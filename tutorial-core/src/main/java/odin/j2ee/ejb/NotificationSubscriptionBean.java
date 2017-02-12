@@ -41,7 +41,7 @@ public class NotificationSubscriptionBean implements NotificationSubscription {
 	
 	private String id;
 	
-	@Resource(mappedName = "java:/jms/topic/notifications")
+	@Resource(lookup = "java:/jms/topic/notifications")
 	private Topic topic;
 	
 	@Resource(mappedName = "java:jboss/DefaultJMSConnectionFactory")

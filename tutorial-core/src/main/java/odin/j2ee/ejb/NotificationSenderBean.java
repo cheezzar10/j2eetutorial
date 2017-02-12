@@ -25,7 +25,7 @@ public class NotificationSenderBean implements NotificationSender {
 	@Inject
 	private Instance<JMSContext> jmsCtx;
 	
-	@Resource(mappedName = "java:/jms/topic/notifications")
+	@Resource(lookup = "java:/jms/topic/notifications")
 	private Destination notificationsTopic;
 	
 	@Override
