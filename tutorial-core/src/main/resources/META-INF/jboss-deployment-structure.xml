@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jboss-deployment-structure>
+	<deployment>
+		<exclusions>
+			<module name="org.slf4j"/>
+			<module name="org.slf4j.impl"/>
+		</exclusions>
+	</deployment>
+	<sub-deployment name="core.jar">
+		<exclusions>
+			<module name="org.slf4j"/>
+			<module name="org.slf4j.impl"/>
+		</exclusions>
+	</sub-deployment>
+</jboss-deployment-structure>
