@@ -56,7 +56,7 @@ public class NotificationSubscriptionBean implements NotificationSubscription {
 	public String activate(Integer userId) throws SubscriptionActivationFailedException {
 		log.debug("activating user #{} notification subscription", userId);
 		id = String.valueOf(System.currentTimeMillis());
-		try (Connection conn = connFactory.createConnection(); Session session = conn.createSession(); MessageConsumer receiver = session.createDurableConsumer(topic, id)) {
+		try (Connection conn = connFactory.createConnection(); Session session = conn.createSession(); MessageConsumer receiver = session.createSharedDurableConsumer(topic, id)) {
 			log.debug("shared durable JMS subscription {} created", id);
 		} catch (JMSException jmsEx) {
 			throw new SubscriptionActivationFailedException(id, jmsEx);
@@ -88,7 +88,7 @@ public class NotificationSubscriptionBean implements NotificationSubscription {
 		}
 		
 		receivers.incrementAndGet();
-		try (Connection conn = connFactory.createConnection(); Session session = conn.createSession(); MessageConsumer receiver = session.createDurableConsumer(topic, id)) {
+		try (Connection conn = connFactory.createConnection(); Session session = conn.createSession(); MessageConsumer receiver = session.createSharedDurableConsumer(topic, id)) {
 			conn.start();
 			TextMessage notificationMsg = (TextMessage)receiver.receive(10000);
 			if (notificationMsg != null) {
