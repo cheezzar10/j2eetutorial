@@ -3,12 +3,13 @@ package odin.j2ee.ejb;
 import java.lang.invoke.MethodHandles;
 
 import javax.annotation.Resource;
-import javax.ejb.EJB;
 import javax.ejb.EJBException;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.NotSupportedException;
@@ -28,8 +29,8 @@ import odin.j2ee.api.TxScopedManagerLocator;
 public class DnsManagerBean implements DnsManager {
 	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	
-	@EJB
-	private TxScopedManagerLocator locator;
+	@Inject
+	private Instance<TxScopedManagerLocator> locator;
 	
 	@Resource
 	private SessionContext ctx;
@@ -45,7 +46,7 @@ public class DnsManagerBean implements DnsManager {
 		try {
 			tx.begin();
 			log.debug("removing domain: {}", domainName);
-			DnsRecordManager dnsRecMgr = locator.getManager(DnsRecordManager.class);
+			DnsRecordManager dnsRecMgr = locator.get().getManager(DnsRecordManager.class);
 			dnsRecMgr.removeRecord(1);
 			tx.commit();
 			log.debug("transaction commited");
