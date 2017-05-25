@@ -17,8 +17,8 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 
 public class RestClient {
-	private static final int CONNECTIONS_LIMIT = 10;
-	private static final int ITERATIONS_COUNT = 16;
+	private static final int CONNECTIONS_LIMIT = 4;
+	private static final int ITERATIONS_COUNT = 32;
 	private static final int CLIENTS_COUNT = 4;
 	
 	public static void main(String[] args) throws Exception {

@@ -3,6 +3,7 @@ package odin.j2ee.ejb;
 import java.lang.invoke.MethodHandles;
 
 import javax.ejb.ActivationConfigProperty;
+import javax.ejb.EJB;
 import javax.ejb.EJBException;
 import javax.ejb.MessageDriven;
 import javax.ejb.TransactionAttribute;
@@ -15,6 +16,7 @@ import javax.jms.ObjectMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import odin.j2ee.api.TaskRegistry;
 import odin.j2ee.model.TaskExecution;
 
 @MessageDriven(name = "TaskDispatcher", activationConfig = {
@@ -25,6 +27,9 @@ import odin.j2ee.model.TaskExecution;
 public class TaskDispatcher implements MessageListener {
 	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	
+	@EJB
+	private TaskRegistry taskRegistry;
+	
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void onMessage(Message message) {
@@ -33,6 +38,7 @@ public class TaskDispatcher implements MessageListener {
 			TaskExecution execution = execMsg.getBody(TaskExecution.class);
 			log.debug("performing task {} execution request with parameters: {}", execution.getTaskName(), execution.getTaskParams());
 			// TODO find task definition and start it using TaskRegistry singleton
+			taskRegistry.executeTask(execution.getTaskName(), execution.getTaskParams());
 		} catch (JMSException jmsEx) {
 			throw new EJBException("task activation failed", jmsEx);
 		}

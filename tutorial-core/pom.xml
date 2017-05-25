@@ -71,9 +71,18 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.jboss.spec.javax.enterprise.concurrent</groupId>
+			<artifactId>jboss-concurrency-api_1.0_spec</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-collections4</artifactId>
 			<version>4.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
 		</dependency>
 	</dependencies>
 </project>

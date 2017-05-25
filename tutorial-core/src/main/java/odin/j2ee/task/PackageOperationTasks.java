@@ -5,14 +5,15 @@ import java.lang.management.ManagementFactory;
 import java.rmi.registry.LocateRegistry;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
 import javax.ejb.Lock;
 import javax.ejb.LockType;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.enterprise.concurrent.ManagedThreadFactory;
 import javax.management.MBeanServer;
 import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
@@ -30,8 +31,11 @@ import ch.qos.logback.classic.LoggerContext;
 public class PackageOperationTasks {
 	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	
-	@PostConstruct
-	private void init() {
+	@Resource(lookup = "java:jboss/ee/concurrency/factory/default")
+	private ManagedThreadFactory threadFactory;
+	
+	// @PostConstruct
+	public void init() {
 		log.debug("package task handlers instance {} initialized", this);
 		
 		MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
@@ -54,6 +58,10 @@ public class PackageOperationTasks {
 	
 	@Task(name = "Install Package")
 	public void install(Map<String, String> params) {
-		log.debug("package installation started with parameters: {}", params);
+		Thread installTask = threadFactory.newThread(() -> {
+			log.debug("package installation started with parameters: {}", params);
+		});
+		installTask.setName("task-install-01");
+		installTask.start();
 	}
 }
