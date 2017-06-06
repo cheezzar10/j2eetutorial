@@ -132,3 +132,4 @@ configuring cache container caches
 optional file store configuration
 
 /subsystem=infinispan/cache-container=taskmgr/local-cache=tasks/store=file:add
+/subsystem=infinispan/cache-container=taskmgr/local-cache=tasks/store=file:write-attribute(name=path,value=tasks)
