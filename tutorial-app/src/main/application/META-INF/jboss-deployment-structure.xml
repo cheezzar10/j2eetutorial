@@ -17,5 +17,8 @@
 			<module name="org.slf4j"/>
 			<module name="org.slf4j.impl"/>
 		</exclusions>
+		<dependencies>
+			<module name="org.infinispan" />
+		</dependencies>
 	</sub-deployment>
 </jboss-deployment-structure>

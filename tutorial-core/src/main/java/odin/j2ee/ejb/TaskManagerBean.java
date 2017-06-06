@@ -1,7 +1,10 @@
 package odin.j2ee.ejb;
 
 import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
@@ -12,6 +15,10 @@ import javax.jms.Destination;
 import javax.jms.JMSContext;
 import javax.jms.JMSProducer;
 
+import org.infinispan.AdvancedCache;
+import org.infinispan.Cache;
+import org.infinispan.manager.CacheContainer;
+import org.infinispan.stats.Stats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,13 +32,38 @@ public class TaskManagerBean implements TaskManager {
 	@Inject
 	private Instance<JMSContext> jmsCtx;
 	
-	@Resource(mappedName = "java:/jms/queue/tasks")
+	@Resource(lookup = "java:/jms/queue/tasks")
 	private Destination tasksQueue;
+	
+	@Resource(lookup = "java:jboss/infinispan/container/taskmgr")
+	private CacheContainer cacheContainer;
+	
+	private Cache<String, TaskExecution> cache;
+	
+	@PostConstruct
+	private void init() {
+		cache = cacheContainer.getCache();
+		log.debug("tasks cache started");
+	}
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void execute(TaskExecution execution) {
+		log.debug("task execution parameters stored in cache");
+		cache.put(execution.getTaskName() + ":" + System.currentTimeMillis(), execution);
 		log.debug("submitting task {} execution request", execution.getTaskName());
 		JMSProducer sender = jmsCtx.get().createProducer();
 		sender.send(tasksQueue, execution);
+	}
+
+	@Override
+	public Map<String, String> getCacheStats() {
+		AdvancedCache<String, TaskExecution> advancedCache = cache.getAdvancedCache();
+		Stats stats = advancedCache.getStats();
+		Map<String, String> rv = new HashMap<>();
+		rv.put("evictions", String.valueOf(stats.getEvictions()));
+		rv.put("stores", String.valueOf(stats.getStores()));
+		rv.put("entries", String.valueOf(stats.getCurrentNumberOfEntries()));
+		rv.put("status", advancedCache.getStatus().toString());
+		return rv;
 	}
 }
