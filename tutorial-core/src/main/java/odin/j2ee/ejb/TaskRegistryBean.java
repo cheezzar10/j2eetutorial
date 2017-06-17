@@ -31,19 +31,21 @@ public class TaskRegistryBean implements TaskRegistry {
 	}
 
 	@Override
-	public void executeTask(String name, Map<String, String> params) {
+	public boolean executeTask(String name, Map<String, String> params) {
 		Pair<Object, Method> handler = tasks.get(name);
 		if (handler == null) {
 			log.debug("task {} not registered", name);
-			return;
+			return false;
 		}
 		
 		log.debug("executing task {}", name);
 		
 		try {
 			handler.getRight().invoke(handler.getLeft(), params);
+			return true;
 		} catch (Exception ex) {
 			log.error("task execution failed: ", ex);
+			return false;
 		}
 	}
 }

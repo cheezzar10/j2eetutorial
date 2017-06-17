@@ -6,5 +6,5 @@ import java.util.Map;
 public interface TaskRegistry {
 	void registerTask(String name, Object target, Method method);
 
-	void executeTask(String name, Map<String, String> params);
+	boolean executeTask(String name, Map<String, String> params);
 }

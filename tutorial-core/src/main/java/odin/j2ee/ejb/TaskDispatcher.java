@@ -2,10 +2,12 @@ package odin.j2ee.ejb;
 
 import java.lang.invoke.MethodHandles;
 
+import javax.annotation.Resource;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.EJB;
 import javax.ejb.EJBException;
 import javax.ejb.MessageDriven;
+import javax.ejb.MessageDrivenContext;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.jms.JMSException;
@@ -30,15 +32,27 @@ public class TaskDispatcher implements MessageListener {
 	@EJB
 	private TaskRegistry taskRegistry;
 	
+	@Resource
+	private MessageDrivenContext ctx;
+	
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void onMessage(Message message) {
+		log.debug("task dispatcher @{}", hashCode());
+		
 		ObjectMessage execMsg = (ObjectMessage)message;
 		try {
+			log.debug("task execution request message #{} received delivery count: {}", 
+					message.getJMSMessageID(), message.getObjectProperty("JMSXDeliveryCount"));
+			
 			TaskExecution execution = execMsg.getBody(TaskExecution.class);
 			log.debug("performing task {} execution request with parameters: {}", execution.getTaskName(), execution.getTaskParams());
-			// TODO find task definition and start it using TaskRegistry singleton
-			taskRegistry.executeTask(execution.getTaskName(), execution.getTaskParams());
+			// TODO find task definition and start it using TasskRegistry singleton
+			boolean success = taskRegistry.executeTask(execution.getTaskName(), execution.getTaskParams());
+			if (!success) {
+				log.debug("task execution failed - rolling back");
+				ctx.setRollbackOnly();
+			}
 		} catch (JMSException jmsEx) {
 			throw new EJBException("task activation failed", jmsEx);
 		}

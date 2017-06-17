@@ -1,6 +1,7 @@
 package odin.j2ee.ejb;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,8 +12,10 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
+import javax.jms.ConnectionMetaData;
 import javax.jms.Destination;
 import javax.jms.JMSContext;
+import javax.jms.JMSException;
 import javax.jms.JMSProducer;
 
 import org.infinispan.AdvancedCache;
@@ -51,6 +54,18 @@ public class TaskManagerBean implements TaskManager {
 		log.debug("task execution parameters stored in cache");
 		cache.put(execution.getTaskName() + ":" + System.currentTimeMillis(), execution);
 		log.debug("submitting task {} execution request", execution.getTaskName());
+		
+		ConnectionMetaData connMeta = jmsCtx.get().getMetaData();
+		
+		try {
+			Enumeration<?> propNames = connMeta.getJMSXPropertyNames();
+			while (propNames.hasMoreElements()) {
+				log.debug("JMSX prop: {}", propNames.nextElement());
+			}
+		} catch (JMSException jmsEx) {
+			log.error("failed to log JMSX property names");
+		}
+		
 		JMSProducer sender = jmsCtx.get().createProducer();
 		sender.send(tasksQueue, execution);
 	}

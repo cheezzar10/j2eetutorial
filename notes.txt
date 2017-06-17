@@ -84,6 +84,9 @@ $ standalone.sh -c standalone-full.xml
   /subsystem=messaging/hornetq-server=default/address-setting=jms.topic.Notifications:write-attribute(name="expiry-address", value="jms.queue.ExpiryQueue")
   /subsystem=messaging/hornetq-server=default/address-setting=jms.topic.Notifications:write-attribute(name="redelivery-delay", value=30000)
   
+  /subsystem=messaging-activemq/server=default/address-setting="jms.queue.tasks":add
+  /subsystem=messaging-activemq/server=default/address-setting="jms.queue.tasks":write-attribute(name="redelivery-delay", value=30000)
+  
   add receive (synchronously) button to subscription.html
   
   1454175385735
