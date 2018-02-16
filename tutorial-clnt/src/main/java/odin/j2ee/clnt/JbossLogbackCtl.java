@@ -24,7 +24,7 @@ import javax.management.remote.JMXServiceURL;
 
 public class JbossLogbackCtl {
 	public static void main(String[] args) throws Exception {
-		JMXServiceURL jmxUrl = new JMXServiceURL("service:jmx:remote+http://localhost:9990");
+		JMXServiceURL jmxUrl = new JMXServiceURL("service:jmx:remote+http://10.27.75.220:9990");
 		JMXConnector jmxConnector = JMXConnectorFactory.connect(jmxUrl, null);
 		MBeanServerConnection jmxConn = jmxConnector.getMBeanServerConnection();
 		
