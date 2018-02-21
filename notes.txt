@@ -124,7 +124,7 @@ $ standalone.sh -c standalone-full.xml
   		
 adding new cache container
 
-/subsystem=infinispan/cache-container=taskmgr:add(default-cache=tasks)
+/subsystem=infinispan/cache-container=taskmgr:add
 
 configuring cache container caches
 

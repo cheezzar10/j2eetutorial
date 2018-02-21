@@ -18,6 +18,7 @@ import javax.ws.rs.ext.Providers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import odin.j2ee.api.HclSender;
 import odin.j2ee.api.TaskManager;
 import odin.j2ee.model.TaskExecution;
 
@@ -32,8 +33,17 @@ public class TaskResource {
 	@EJB
 	private TaskManager taskMgr;
 	
+	@EJB
+	private HclSender hclSender;
+	
 	@Context
 	private Providers providers;
+	
+	@POST
+	@Path("/hcl")
+	public void sendHcl(String hcl) {
+		hclSender.sendHcl(hcl);
+	}
 	
 	@POST
 	@Consumes("application/json")
