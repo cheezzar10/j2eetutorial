@@ -4,6 +4,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.Map;
 
 import javax.ejb.EJB;
+import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -23,6 +24,7 @@ import odin.j2ee.api.TaskManager;
 import odin.j2ee.model.TaskExecution;
 
 @Path("/tasks")
+@Singleton
 public class TaskResource {
 	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	
