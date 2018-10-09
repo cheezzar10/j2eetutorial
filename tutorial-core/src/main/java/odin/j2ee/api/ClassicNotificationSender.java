@@ -1,8 +1,10 @@
 package odin.j2ee.api;
 
-import javax.ejb.Local;
+import javax.ejb.Remote;
 
-@Local
+@Remote
 public interface ClassicNotificationSender {
-	public void send(Integer userId, String msg);
+	void send(Integer userId, String msg);
+	
+	void sendMessages(Integer userId, String[] msgs);
 }

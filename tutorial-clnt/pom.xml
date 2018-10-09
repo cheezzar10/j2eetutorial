@@ -42,6 +42,15 @@
 			<groupId>org.jboss.resteasy</groupId>
 			<artifactId>resteasy-client</artifactId>
 		</dependency>
+		<!--
+		<dependency>
+			<groupId>com.odin.j2ee</groupId>
+			<artifactId>tutorial-core</artifactId>
+			<version>${appVersion}</version>
+			<type>ejb</type>
+			<scope>runtime</scope>
+		</dependency>
+		-->
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
@@ -55,6 +64,26 @@
 			<groupId>org.jboss.logging</groupId>
 			<artifactId>jboss-logging</artifactId>
 			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss</groupId>
+			<artifactId>jboss-ejb-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.wildfly.client</groupId>
+			<artifactId>wildfly-client-config</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.wildfly.transaction</groupId>
+			<artifactId>wildfly-transaction-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.wildfly.wildfly-http-client</groupId>
+			<artifactId>wildfly-http-ejb-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.wildfly</groupId>
+			<artifactId>wildfly-naming</artifactId>
 		</dependency>
 	</dependencies>
 </project>
