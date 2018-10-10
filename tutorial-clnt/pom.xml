@@ -42,15 +42,12 @@
 			<groupId>org.jboss.resteasy</groupId>
 			<artifactId>resteasy-client</artifactId>
 		</dependency>
-		<!--
 		<dependency>
 			<groupId>com.odin.j2ee</groupId>
 			<artifactId>tutorial-core</artifactId>
 			<version>${appVersion}</version>
 			<type>ejb</type>
-			<scope>runtime</scope>
 		</dependency>
-		-->
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>

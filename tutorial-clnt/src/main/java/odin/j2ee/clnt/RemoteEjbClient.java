@@ -16,7 +16,7 @@ public class RemoteEjbClient {
 		tx.commit();
 	}
 
-	private <T> T lookup(String jndiName, Class<T> clazz) {
+	private static <T> T lookup(String jndiName, Class<T> clazz) {
 		return null;
 	}
 }
