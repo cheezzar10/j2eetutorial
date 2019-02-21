@@ -12,12 +12,12 @@ import org.slf4j.LoggerFactory;
 public class JobRunnerBean {
 	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	
-	@Schedule(hour = "*", minute = "*", second = "*/2", persistent = false)
+	// @Schedule(hour = "*", minute = "*", second = "*/2", persistent = false)
 	private void processJobQueue() {
 		log.debug("delayed jobs queue processing started using processor @{}", hashCode());
 		
 		try {
-			Thread.sleep(5000);
+			Thread.sleep(100);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 		}

@@ -21,7 +21,7 @@ import odin.j2ee.api.ClassicNotificationSender;
 import odin.j2ee.api.DnsRecordManager;
 import odin.j2ee.api.TxScopedManagerLocator;
 
-@Stateless
+@Stateless(name = "ClassicNotificationSender")
 public class ClassicNotificationSenderBean implements ClassicNotificationSender {
 	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	

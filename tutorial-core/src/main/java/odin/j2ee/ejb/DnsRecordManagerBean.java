@@ -42,15 +42,6 @@ public class DnsRecordManagerBean implements DnsRecordManager, SessionSynchroniz
 	public void removeRecord(int recId) {
 		log.debug("DNSRECMGR @{} marking DNS record #{} as removed", hashCode(), recId);
 		removedRecIds.add(recId);
-		
-		try (MessageProducer sender = session.createProducer(queue)) {
-			TextMessage msg = session.createTextMessage("DNS record " + recId + " removed");
-			msg.setStringProperty("subscriptionId", "bar");
-			sender.send(msg);
-			log.debug("notification was sent about removed DNS record");
-		} catch (JMSException jmsEx) {
-			log.error("failed to send DNS record removal notification: ", jmsEx);
-		}
 	}
 
 	@Override
@@ -93,9 +84,21 @@ public class DnsRecordManagerBean implements DnsRecordManager, SessionSynchroniz
 	@Override
 	public void beforeCompletion() throws RemoteException {
 		log.debug("DNSRECMGR @{} performing DNS records deletion", hashCode());
-		for (Integer recId : removedRecIds) {
-			log.debug("DNSRECMGR @{} removing DNS record #{}", hashCode(), recId);
+		
+		try (MessageProducer sender = session.createProducer(queue)) {
+			for (Integer recId : removedRecIds) {
+				log.debug("DNSRECMGR @{} removing DNS record #{}", hashCode(), recId);
+				
+				TextMessage msg = session.createTextMessage("DNS record " + recId + " removed");
+				msg.setStringProperty("subscriptionId", "bar");
+				sender.send(msg);
+				log.debug("notification was sent about removed DNS record");
+			}
+		} catch (JMSException jmsEx) {
+			log.error("failed to send DNS record removal notification: ", jmsEx);
 		}
+		
+		
 		log.debug("DNSRECMGR @{} {} DNS records deleted", hashCode(), removedRecIds);
 	}
 }
