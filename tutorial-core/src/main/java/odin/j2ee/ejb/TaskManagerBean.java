@@ -22,6 +22,7 @@ import javax.jms.Session;
 
 import org.infinispan.AdvancedCache;
 import org.infinispan.Cache;
+import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.manager.CacheContainer;
 import org.infinispan.stats.Stats;
 import org.slf4j.Logger;
@@ -33,6 +34,7 @@ import odin.j2ee.model.TaskExecution;
 @Stateless(name = "TaskManager")
 @Resources({
 	@Resource(name = "cache-container/taskmgr", mappedName = "java:jboss/infinispan/container/taskmgr"),
+	@Resource(name = "cache/tasks", type = Configuration.class, lookup = "java:jboss/infinispan/configuration/taskmgr/tasks"),
 })
 public class TaskManagerBean implements TaskManager {
 	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

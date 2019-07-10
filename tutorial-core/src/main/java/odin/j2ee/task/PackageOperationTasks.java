@@ -92,6 +92,8 @@ public class PackageOperationTasks {
 	
 	@Task(name = "Install Package")
 	public void install(Map<String, String> params) throws Exception {
+		log.debug("package installation scheduling started");
+
 		Thread installTask = threadFactory.newThread(() -> {
 			log.debug("package installation started with parameters: {}", params);
 		});
@@ -99,6 +101,8 @@ public class PackageOperationTasks {
 		installTask.start();
 		
 		Thread.sleep(100_000);
+		
+		log.debug("package installation scheduling completed");
 	}
 	
 	// @Task(name = "Update Package")

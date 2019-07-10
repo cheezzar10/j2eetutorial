@@ -22,8 +22,10 @@ import odin.j2ee.api.TaskRegistry;
 import odin.j2ee.model.TaskExecution;
 
 @MessageDriven(name = "TaskDispatcher", activationConfig = {
+		// @ActivationConfigProperty(propertyName = "connectionFactoryLookup", propertyValue = "java:jboss/DefaultJMSConnectionFactory2"),
 		@ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
 		@ActivationConfigProperty(propertyName = "destinationLookup", propertyValue = "java:/jms/queue/tasks"),
+		@ActivationConfigProperty(propertyName = "maxSession", propertyValue = "512"),
 		// @ActivationConfigProperty(propertyName = "messageSelector", propertyValue = "teskName = 'Install Package'")
 	})
 // TODO rename to TaskExecutor
