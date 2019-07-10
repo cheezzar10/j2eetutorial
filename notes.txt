@@ -129,7 +129,7 @@ adding new cache container
 
 configuring cache container caches
 
-/subsystem=infinispan/cache-container=taskmgr/local-cache=tasks:add(statistics-enabled=true)
+/subsystem=infinispan/cache-container=taskmgr/local-cache=tasks:add(statistics-enabled=true,jndi-name=java:jboss/infinispan/cache/tasks)
 /subsystem=infinispan/cache-container=taskmgr/local-cache=tasks/component=eviction:write-attribute(name=max-entries,value=16)
 /subsystem=infinispan/cache-container=taskmgr/local-cache=tasks/component=eviction:write-attribute(name=strategy,value=LRU)
 

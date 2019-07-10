@@ -6,6 +6,17 @@
 			<interceptor-class>odin.j2ee.task.TaskDetector</interceptor-class>
 		</interceptor>
 	</interceptors>
+
+	<enterprise-beans>
+		<session>
+			<ejb-name>TaskManager</ejb-name>
+			<resource-ref>
+				<res-ref-name>cache/tasks</res-ref-name>
+				<res-type>org.infinispan.configuration.cache.Configuration</res-type>
+				<lookup-name>java:jboss/infinispan/configuration/taskmgr/tasks</lookup-name>
+			</resource-ref>
+		</session>
+	</enterprise-beans>
 	
 	<assembly-descriptor>
 		<interceptor-binding>

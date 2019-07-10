@@ -5,6 +5,7 @@ import java.lang.management.ManagementFactory;
 import java.rmi.registry.LocateRegistry;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.ejb.Lock;
@@ -18,6 +19,10 @@ import javax.management.MBeanServer;
 import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NameClassPair;
+import javax.naming.NamingEnumeration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,10 +39,19 @@ public class PackageOperationTasks {
 	@Resource(lookup = "java:jboss/ee/concurrency/factory/default")
 	private ManagedThreadFactory threadFactory;
 	
-	// @PostConstruct
+	@PostConstruct
 	public void init() {
 		log.debug("package task handlers instance {} initialized", this);
 		
+		try {
+			dumpJndiTree();
+			// initJmxServer();
+		} catch (Exception e) {
+			log.error("startup failure: ", e);
+		}
+	}
+	
+	private void initJmxServer() {
 		MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
 		try {
 			LocateRegistry.createRegistry(1099);
@@ -50,6 +64,26 @@ public class PackageOperationTasks {
 		}
 	}
 	
+	private void dumpJndiTree() throws Exception {
+		InitialContext rootCtx = new InitialContext();
+		
+		Context ctx = (Context) rootCtx.lookup("java:jboss");
+		dumpContext(ctx);
+	}
+
+	private void dumpContext(Context ctx) throws Exception {
+		NamingEnumeration<NameClassPair> entries = ctx.list("");
+		while (entries.hasMore()) {
+			NameClassPair entry = entries.next();
+			if ("javax.naming.Context".equals(entry.getClassName())) {
+				log.debug("context: {}", entry.getName());
+				dumpContext((Context)ctx.lookup(entry.getName()));
+			} else {
+				log.debug("{}: {}", entry.getName(), entry.getClassName());
+			}
+		}
+	}
+
 	@PreDestroy
 	private void onDestroy() {
 		LoggerContext logCtx = (LoggerContext)LoggerFactory.getILoggerFactory();
@@ -57,12 +91,14 @@ public class PackageOperationTasks {
 	}
 	
 	@Task(name = "Install Package")
-	public void install(Map<String, String> params) {
+	public void install(Map<String, String> params) throws Exception {
 		Thread installTask = threadFactory.newThread(() -> {
 			log.debug("package installation started with parameters: {}", params);
 		});
 		installTask.setName("task-install-01");
 		installTask.start();
+		
+		Thread.sleep(100_000);
 	}
 	
 	// @Task(name = "Update Package")

@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.annotation.Resources;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
@@ -30,6 +31,9 @@ import odin.j2ee.api.TaskManager;
 import odin.j2ee.model.TaskExecution;
 
 @Stateless(name = "TaskManager")
+@Resources({
+	@Resource(name = "cache-container/taskmgr", mappedName = "java:jboss/infinispan/container/taskmgr"),
+})
 public class TaskManagerBean implements TaskManager {
 	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	
@@ -39,14 +43,14 @@ public class TaskManagerBean implements TaskManager {
 	@Resource(lookup = "java:/jms/queue/tasks")
 	private Destination tasksQueue;
 	
-	@Resource(lookup = "java:jboss/infinispan/container/taskmgr")
+	@Resource(name = "cache-container/taskmgr")
 	private CacheContainer cacheContainer;
-	
+
 	private Cache<String, TaskExecution> cache;
 	
 	@PostConstruct
 	private void init() {
-		cache = cacheContainer.getCache();
+		cache = cacheContainer.getCache("tasks");
 		log.debug("tasks cache started");
 	}
 	
