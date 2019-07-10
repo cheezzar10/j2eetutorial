@@ -24,6 +24,7 @@ import odin.j2ee.model.TaskExecution;
 @MessageDriven(name = "TaskDispatcher", activationConfig = {
 		@ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
 		@ActivationConfigProperty(propertyName = "destinationLookup", propertyValue = "java:/jms/queue/tasks"),
+		// @ActivationConfigProperty(propertyName = "messageSelector", propertyValue = "teskName = 'Install Package'")
 	})
 // TODO rename to TaskExecutor
 public class TaskDispatcher implements MessageListener {

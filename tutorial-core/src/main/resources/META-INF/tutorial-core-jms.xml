@@ -5,9 +5,11 @@
 			<jms-queue name="notifications">
 				<entry name="jms/queue/notifications" />
 			</jms-queue>
+			<!--
 			<jms-queue name="tasks">
 				<entry name="jms/queue/tasks" />
 			</jms-queue>
+			-->
 			<jms-topic name="notifications">
 				<entry name="jms/topic/notifications" />
 			</jms-topic>

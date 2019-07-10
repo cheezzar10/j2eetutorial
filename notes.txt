@@ -85,7 +85,8 @@ $ standalone.sh -c standalone-full.xml
   /subsystem=messaging/hornetq-server=default/address-setting=jms.topic.Notifications:write-attribute(name="redelivery-delay", value=30000)
   
   /subsystem=messaging-activemq/server=default/address-setting="jms.queue.tasks":add
-  /subsystem=messaging-activemq/server=default/address-setting="jms.queue.tasks":write-attribute(name="redelivery-delay", value=30000)
+  /subsystem=messaging-activemq/server=default/address-setting="jms.queue.tasks":write-attribute(name="redelivery-delay", value=1000)
+  /subsystem=messaging-activemq/server=default/address-setting="jms.queue.tasks":write-attribute(name="max-delivery-attempts", value=100)
   
   add receive (synchronously) button to subscription.html
   
@@ -136,3 +137,6 @@ optional file store configuration
 
 /subsystem=infinispan/cache-container=taskmgr/local-cache=tasks/store=file:add
 /subsystem=infinispan/cache-container=taskmgr/local-cache=tasks/store=file:write-attribute(name=path,value=tasks)
+
+scheduling tasks 
+i=0; while [ "$i" -lt 256 ]; do curl -X POST -H "Content-Type: application/json" -d '{ "taskName": "Update Package", "taskParams": { "packageId": 126, "hostId": 2 } }' http://localhost:8080/tutorial/rs/tasks; ((i+=1)); done

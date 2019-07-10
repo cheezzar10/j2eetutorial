@@ -24,7 +24,7 @@ import javax.management.remote.JMXServiceURL;
 
 public class JbossLogbackCtl {
 	public static void main(String[] args) throws Exception {
-		JMXServiceURL jmxUrl = new JMXServiceURL("service:jmx:remote+http://10.27.75.220:9990");
+		JMXServiceURL jmxUrl = new JMXServiceURL("service:jmx:remote+http://127.0.0.1:9990");
 		JMXConnector jmxConnector = JMXConnectorFactory.connect(jmxUrl, null);
 		MBeanServerConnection jmxConn = jmxConnector.getMBeanServerConnection();
 		
@@ -33,8 +33,10 @@ public class JbossLogbackCtl {
 			printLogbackJmxConfigurators(jmxConn);
 		}
 		
-		setLoggerLevelInContext(jmxConn, "tutorial-core", "odin.j2ee.ejb.DnsRecordManagerBean", "DEBUG");
-		printLoggersInContext(jmxConn, "tutorial-core");
+		// setLoggerLevelInContext(jmxConn, "tutorial-core", "odin.j2ee.ejb.DnsRecordManagerBean", "DEBUG");
+		// printLoggersInContext(jmxConn, "tutorial-core");
+		setLoggerLevelInContext(jmxConn, "pui", "com.odin.aps.service.booster.ejb.ResultExtractorBean", "TRACE");
+		// printLoggersInContext(jmxConn, "pui");
 		
 		jmxConnector.close();
 	}

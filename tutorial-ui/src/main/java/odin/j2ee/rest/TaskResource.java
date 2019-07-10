@@ -55,6 +55,7 @@ public class TaskResource {
 		taskMgr.execute(execution);
 	}
 	
+	/*
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Map<String, String> getCacheStats() {
@@ -72,6 +73,20 @@ public class TaskResource {
 				tx.rollback();
 				throw ex;
 			}
+		} catch (Exception ex) {
+			throw new EJBException(ex);
+		}
+	}
+	 */
+	
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Map<String, String> getCacheStats() {
+		try {
+			DnsRecordManager dnsRecMgr = (DnsRecordManager) new InitialContext().lookup("java:global/tutorial-app/tutorial-core/DnsRecordManager");
+			// dnsRecMgr.removeRecord(1);
+			Thread.sleep(10);
+			return taskMgr.getCacheStats();
 		} catch (Exception ex) {
 			throw new EJBException(ex);
 		}

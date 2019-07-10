@@ -64,4 +64,9 @@ public class PackageOperationTasks {
 		installTask.setName("task-install-01");
 		installTask.start();
 	}
+	
+	// @Task(name = "Update Package")
+	public void update(Map<String, String> params) {
+		log.debug("package update task started with parameters: {}", params);
+	}
 }

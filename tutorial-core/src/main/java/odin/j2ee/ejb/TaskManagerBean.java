@@ -10,13 +10,14 @@ import javax.annotation.Resource;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
 import javax.jms.ConnectionMetaData;
 import javax.jms.Destination;
-import javax.jms.JMSContext;
 import javax.jms.JMSException;
-import javax.jms.JMSProducer;
+import javax.jms.MessageProducer;
+import javax.jms.ObjectMessage;
+import javax.jms.Session;
 
 import org.infinispan.AdvancedCache;
 import org.infinispan.Cache;
@@ -32,8 +33,8 @@ import odin.j2ee.model.TaskExecution;
 public class TaskManagerBean implements TaskManager {
 	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	
-	@Inject
-	private Instance<JMSContext> jmsCtx;
+	@Resource(mappedName = "java:jboss/DefaultJMSConnectionFactory")
+	private ConnectionFactory connFactory;
 	
 	@Resource(lookup = "java:/jms/queue/tasks")
 	private Destination tasksQueue;
@@ -52,22 +53,24 @@ public class TaskManagerBean implements TaskManager {
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void execute(TaskExecution execution) {
 		log.debug("task execution parameters stored in cache");
-		cache.put(execution.getTaskName() + ":" + System.currentTimeMillis(), execution);
+		// cache.put(execution.getTaskName() + ":" + System.currentTimeMillis(), execution);
 		log.debug("submitting task {} execution request", execution.getTaskName());
 		
-		ConnectionMetaData connMeta = jmsCtx.get().getMetaData();
-		
-		try {
+		try (Connection conn = connFactory.createConnection(); Session session = conn.createSession(); MessageProducer sender = session.createProducer(tasksQueue)) {
+			ConnectionMetaData connMeta = conn.getMetaData();
+			
 			Enumeration<?> propNames = connMeta.getJMSXPropertyNames();
 			while (propNames.hasMoreElements()) {
 				log.debug("JMSX prop: {}", propNames.nextElement());
 			}
+			
+			ObjectMessage execMsg = session.createObjectMessage(execution);
+			execMsg.setStringProperty("taskName", execution.getTaskName());
+			
+			sender.send(execMsg);
 		} catch (JMSException jmsEx) {
 			log.error("failed to log JMSX property names");
 		}
-		
-		JMSProducer sender = jmsCtx.get().createProducer();
-		sender.send(tasksQueue, execution);
 	}
 
 	@Override
