@@ -32,10 +32,31 @@ public class JbossLogbackCtl {
 			printMBeansCount(jmxConn);
 			printLogbackJmxConfigurators(jmxConn);
 		}
-		
+
+		if (args.length == 0) {
+			System.out.println("operation argument is missing");
+			return;
+		}
+
+		String operation = args[0];
+		if ("set-log-level".equals(operation)) {
+			if (args.length < 3) {
+				System.out.println("specify logger and level");
+				return;
+			}
+
+			String logger = args[1];
+			String level = args[2];
+
+			System.out.printf("configuring logger '%s' level to '%s'%n", logger, level);
+			setLoggerLevelInContext(jmxConn, "pui", logger, level);
+		} else if ("show-loggers-conf".equals(operation)) {
+			printLoggersInContext(jmxConn, "pui");
+		}
+
 		// setLoggerLevelInContext(jmxConn, "tutorial-core", "odin.j2ee.ejb.DnsRecordManagerBean", "DEBUG");
-		// printLoggersInContext(jmxConn, "tutorial-core");
-		setLoggerLevelInContext(jmxConn, "pui", "com.odin.aps.service.booster.ejb.ResultExtractorBean", "TRACE");
+		// setLoggerLevelInContext(jmxConn, "pui", "com.odin.aps.service.booster.ejb.ResultExtractorBean", "TRACE");
+		// setLoggerLevelInContext(jmxConn, "pui", "com.odin.aps.service.booster.ejb.ResultExtractorBean", "TRACE");
 		// printLoggersInContext(jmxConn, "pui");
 		
 		jmxConnector.close();
