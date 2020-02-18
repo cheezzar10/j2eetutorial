@@ -105,7 +105,7 @@ public class PackageOperationTasks {
 		log.debug("package installation scheduling completed");
 	}
 	
-	// @Task(name = "Update Package")
+	@Task(name = "Update Package")
 	public void update(Map<String, String> params) {
 		log.debug("package update task started with parameters: {}", params);
 	}
