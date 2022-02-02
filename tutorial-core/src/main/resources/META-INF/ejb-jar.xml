@@ -6,6 +6,17 @@
 			<interceptor-class>odin.j2ee.task.TaskDetector</interceptor-class>
 		</interceptor>
 	</interceptors>
+
+        <enterprise-beans>
+          <session>
+            <ejb-name>TaskManager</ejb-name>
+            <resource-env-ref>
+                <resource-env-ref-name>taskmgr/tasks</resource-env-ref-name>
+                <resource-env-ref-type>org.infinispan.Cache</resource-env-ref-type>
+                <lookup-name>java:jboss/infinispan/cache/taskmgr/tasks</lookup-name><!-- References the default-cache of mycontainer -->
+            </resource-env-ref>
+          </session>
+        </enterprise-beans>
 	
 	<assembly-descriptor>
 		<interceptor-binding>

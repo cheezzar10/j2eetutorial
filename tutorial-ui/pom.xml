@@ -17,7 +17,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.jboss.spec.javax.servlet</groupId>
-			<artifactId>jboss-servlet-api_3.1_spec</artifactId>
+			<artifactId>jboss-servlet-api_4.0_spec</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -27,12 +27,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.spec.javax.ws.rs</groupId>
-			<artifactId>jboss-jaxrs-api_2.0_spec</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>javax.inject</groupId>
-			<artifactId>javax.inject</artifactId>
+			<artifactId>jboss-jaxrs-api_2.1_spec</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -52,5 +47,11 @@
 			<type>ejb-client</type>
 			<scope>provided</scope>
 		</dependency>
+                <dependency>
+                  <groupId>jakarta.platform</groupId>
+                  <artifactId>jakarta.jakartaee-api</artifactId>
+                  <version>8.0.0</version>
+                  <scope>provided</scope>
+                </dependency>
 	</dependencies>
 </project>

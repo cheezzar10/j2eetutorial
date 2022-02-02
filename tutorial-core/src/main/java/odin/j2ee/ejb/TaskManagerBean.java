@@ -38,14 +38,11 @@ public class TaskManagerBean implements TaskManager {
 	@Resource(lookup = "java:/jms/queue/tasks")
 	private Destination tasksQueue;
 	
-	@Resource(lookup = "java:jboss/infinispan/container/taskmgr")
-	private CacheContainer cacheContainer;
-	
+	@Resource(name = "taskmgr/tasks")
 	private Cache<String, TaskExecution> cache;
 	
 	@PostConstruct
 	private void init() {
-		cache = cacheContainer.getCache();
 		log.debug("tasks cache started");
 	}
 	

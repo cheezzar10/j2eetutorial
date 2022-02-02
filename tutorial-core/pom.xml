@@ -6,6 +6,7 @@
 		<groupId>com.odin.j2ee</groupId>
 		<artifactId>tutorial</artifactId>
 		<version>1.0</version>
+                <relativePath>..</relativePath>
 	</parent>
 
 	<artifactId>tutorial-core</artifactId>
@@ -42,28 +43,18 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>javax.inject</groupId>
-			<artifactId>javax.inject</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.jboss.spec.javax.websocket</groupId>
 			<artifactId>jboss-websocket-api_1.1_spec</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.spec.javax.transaction</groupId>
-			<artifactId>jboss-transaction-api_1.2_spec</artifactId>
+			<artifactId>jboss-transaction-api_1.3_spec</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>javax.enterprise</groupId>
-			<artifactId>cdi-api</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.spec.javax.interceptor</groupId>
@@ -88,5 +79,11 @@
 			<groupId>org.infinispan</groupId>
 			<artifactId>infinispan-core</artifactId>
 		</dependency>
+                <dependency>
+                  <groupId>jakarta.platform</groupId>
+                  <artifactId>jakarta.jakartaee-api</artifactId>
+                  <version>8.0.0</version>
+                  <scope>provided</scope>
+                </dependency>
 	</dependencies>
 </project>
