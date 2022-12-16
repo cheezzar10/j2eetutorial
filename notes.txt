@@ -132,6 +132,18 @@ configuring cache container caches
 /subsystem=infinispan/cache-container=taskmgr/local-cache=tasks/component=eviction:write-attribute(name=max-entries,value=16)
 /subsystem=infinispan/cache-container=taskmgr/local-cache=tasks/component=eviction:write-attribute(name=strategy,value=LRU)
 
+/subsystem=infinispan/cache-container=taskmgr:write-attribute(name=default-cache,value=tasks)
+
+# making cache transactional
+/subsystem=infinispan/cache-container=taskmgr/invalidation-cache=tasks/component=transaction:write-attribute(name=mode,value=NON_XA)
+
+also, in case of clustered cache container configuration
+
+/subsystem=infinispan/cache-container=taskmgr/transport=jgroups:add
+/subsystem=infinispan/cache-container=taskmgr/invalidation-cache=tasks:add(statistics-enabled=true)
+/subsystem=infinispan/cache-container=taskmgr/invalidation-cache=tasks/component=eviction:write-attribute(name=max-entries,value=16)
+/subsystem=infinispan/cache-container=taskmgr/invalidation-cache=tasks/component=eviction:write-attribute(name=strategy,value=LRU)
+
 optional file store configuration
 
 /subsystem=infinispan/cache-container=taskmgr/local-cache=tasks/store=file:add
