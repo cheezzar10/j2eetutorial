@@ -22,11 +22,9 @@ public class RemoteEjbClient {
 
 		Context namingCtx = new InitialContext(namingProps);
 
-		for (int i = 0; i < 32; ++i) {
+		for (int i = 0; i < 1; ++i) {
 			sendNotifications(i, namingCtx);
-			if (i > 1024) {
-				sendNotificationsInTx(i, namingCtx);
-			}
+			sendNotificationsInTx(i, namingCtx);
 		}
 	}
 
@@ -41,7 +39,6 @@ public class RemoteEjbClient {
 			System.out.printf("send notification attempt #%d completed successfully%n", attempt);
 		} catch (Exception ex) {
 			System.out.printf("send notification attempt #%d failed: '%s'%n", attempt, ex.getMessage());
-			return;
 		}
 	}
 
@@ -61,7 +58,6 @@ public class RemoteEjbClient {
 		} catch (Exception ex) {
 			tx.rollback();
 			System.out.printf("tx %d rolled back%n", txId);
-			return;
 		}
 	}
 

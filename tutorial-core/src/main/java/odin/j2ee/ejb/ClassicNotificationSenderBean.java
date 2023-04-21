@@ -6,6 +6,7 @@ import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ejb.SessionContext;
+import javax.inject.Inject;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -14,6 +15,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.MessageProducer;
 
+import odin.j2ee.api.DnsManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,8 +36,11 @@ public class ClassicNotificationSenderBean implements ClassicNotificationSender 
 	@Resource
 	private SessionContext sessionCtx;
 	
-	@EJB
+	@Inject
 	private TxScopedManagerLocator locator;
+
+	@EJB
+	private DnsManager dnsManager;
 	
 	@Override
 	public void send(Integer userId, String msg) {
@@ -66,11 +71,8 @@ public class ClassicNotificationSenderBean implements ClassicNotificationSender 
 				
 				DnsRecordManager dnsRecMgr = locator.getManager(DnsRecordManager.class);
 				dnsRecMgr.removeRecord(1);
-				
-				if (i > 1) {
-					// check that stateful scoped resources will be released after throw
-					throw new IllegalStateException("boom");
-				}
+
+				dnsManager.removeDomain("some.domain");
 			} catch(InterruptedException intrEx) {
 				Thread.currentThread().interrupt();
 				return;

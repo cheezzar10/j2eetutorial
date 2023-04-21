@@ -4,11 +4,16 @@ import java.lang.invoke.MethodHandles;
 import java.rmi.RemoteException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.ejb.EJBException;
 import javax.ejb.SessionSynchronization;
 import javax.ejb.Stateful;
+import javax.ejb.StatefulTimeout;
+import javax.interceptor.ExcludeDefaultInterceptors;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -22,7 +27,11 @@ import org.slf4j.LoggerFactory;
 
 import odin.j2ee.api.DnsRecordManager;
 
-@Stateful(name = "DnsRecordManager")
+@Stateful(
+		name = "DnsRecordManager",
+		passivationCapable = false) // disables infinispan bean manager which causes immediate SFSB instances expiration
+@StatefulTimeout(0)
+@ExcludeDefaultInterceptors
 public class DnsRecordManagerBean implements DnsRecordManager, SessionSynchronization {
 	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	
@@ -37,6 +46,16 @@ public class DnsRecordManagerBean implements DnsRecordManager, SessionSynchroniz
 	private Connection connection;
 	
 	private Session session;
+
+	@PostConstruct
+	private void init() {
+		log.debug("DNSRECMGR @{} instance created", hashCode());
+	}
+
+	@PreDestroy
+	private void destroy() {
+		log.debug("DNSRECMGR @{} instance destroyed", hashCode());
+	}
 
 	@Override
 	public void removeRecord(int recId) {
