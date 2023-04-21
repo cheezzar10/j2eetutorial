@@ -1,5 +1,6 @@
 package odin.j2ee.rest;
 
+import odin.j2ee.api.SynchronizedActionExecutionException;
 import odin.j2ee.api.SynchronizedActionExecutor;
 import odin.j2ee.rest.model.Product;
 import org.slf4j.Logger;
@@ -27,17 +28,29 @@ public class SyncResource {
     public Response importProduct(Product product) {
         log.debug("importing product");
 
-        synchronizedExecutor.executeSynchronized(() -> {
-            log.debug("import started");
+        try {
+            synchronizedExecutor.executeSynchronized(() -> {
+                log.debug("import started");
 
-            sleepQuiet(5000);
+                sleepQuiet(5000);
+                if (Math.abs(-1) == 1) {
+                    throw new RuntimeException("import failed");
+                }
 
-            log.debug("import completed");
+                log.debug("import completed");
 
-            return null;
-        });
+                return null;
+            });
 
-        return Response.ok(product).build();
+            return Response.ok(product).build();
+        } catch (SynchronizedActionExecutionException ex) {
+            log.error(
+                    "synchronized action execution failed at: {} with message {}",
+                    ex.getTimestamp(),
+                    ex.getMessage());
+
+            return Response.serverError().build();
+        }
     }
 
     private void sleepQuiet(long delay) {

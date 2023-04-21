@@ -1,5 +1,6 @@
 package odin.j2ee.ejb;
 
+import odin.j2ee.api.SynchronizedActionExecutionException;
 import odin.j2ee.api.SynchronizedActionExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,11 +18,13 @@ public class SynchronizedActionExecutorBean implements SynchronizedActionExecuto
 
     @Override
     @Interceptors({SynchronizedActionExecutionLogger.class})
-    public <R> R executeSynchronized(Supplier<R> action) {
+    public <R> R executeSynchronized(Supplier<R> action) throws SynchronizedActionExecutionException {
         log.debug("synchronized executor lock acquired");
 
         try {
             return action.get();
+        } catch (Exception ex) {
+            throw new SynchronizedActionExecutionException(ex.getMessage(), System.currentTimeMillis());
         } finally {
             log.debug("releasing synchronized executor lock");
         }

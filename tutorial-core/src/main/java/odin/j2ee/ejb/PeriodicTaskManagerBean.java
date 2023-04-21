@@ -31,6 +31,10 @@ public class PeriodicTaskManagerBean implements PeriodicTaskManager {
 	@Override
 	public void scheduleTask(String name, long interval) {
 		log.debug("scheduling periodic task with name: {} and interval: {}", name, interval);
+
+		if (interval <= 0) {
+			throw new IllegalArgumentException("interval should be positive value");
+		}
 		
 		TimerConfig tmrCnf = new TimerConfig(name, false);
 		Timer tmr = tmrSvc.createIntervalTimer(0, interval, tmrCnf);
