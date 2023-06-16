@@ -2,7 +2,6 @@ package odin.j2ee.ejb;
 
 import odin.j2ee.api.DnsManager;
 import odin.j2ee.api.DnsRecordManager;
-import odin.j2ee.api.TxScopedManagerLocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,9 +12,9 @@ import java.lang.invoke.MethodHandles;
 @Stateless(name = "DnsManager")
 public class DnsManagerBean implements DnsManager {
 	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-	
+
 	@Inject
-	private TxScopedManagerLocator locator;
+	private DnsRecordManager dnsRecordManager;
 
 	@Override
 	public void createDomain(String domainName) {
@@ -24,9 +23,8 @@ public class DnsManagerBean implements DnsManager {
 
 	@Override
 	public void removeDomain(String domainName) {
-		DnsRecordManager dnsRecMgr = locator.getManager(DnsRecordManager.class);
-
 		log.debug("removing domain: {}", domainName);
-		dnsRecMgr.removeRecord(1);
+
+		dnsRecordManager.removeRecord(1);
 	}
 }

@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import odin.j2ee.api.ClassicNotificationSender;
 import odin.j2ee.api.DnsRecordManager;
-import odin.j2ee.api.TxScopedManagerLocator;
 
 @Stateless(name = "ClassicNotificationSender")
 public class ClassicNotificationSenderBean implements ClassicNotificationSender {
@@ -35,12 +34,12 @@ public class ClassicNotificationSenderBean implements ClassicNotificationSender 
 	
 	@Resource
 	private SessionContext sessionCtx;
-	
-	@Inject
-	private TxScopedManagerLocator locator;
 
 	@EJB
 	private DnsManager dnsManager;
+
+	@Inject
+	private DnsRecordManager dnsRecordManager;
 	
 	@Override
 	public void send(Integer userId, String msg) {
@@ -69,8 +68,7 @@ public class ClassicNotificationSenderBean implements ClassicNotificationSender 
 				log.debug("sleeping before next send attempt");
 				Thread.sleep(100);
 				
-				DnsRecordManager dnsRecMgr = locator.getManager(DnsRecordManager.class);
-				dnsRecMgr.removeRecord(1);
+				dnsRecordManager.removeRecord(1);
 
 				dnsManager.removeDomain("some.domain");
 			} catch(InterruptedException intrEx) {

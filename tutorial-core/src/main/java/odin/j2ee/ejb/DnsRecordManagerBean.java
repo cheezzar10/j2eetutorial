@@ -21,17 +21,16 @@ import javax.jms.JMSException;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.MessageProducer;
+import javax.transaction.TransactionScoped;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import odin.j2ee.api.DnsRecordManager;
 
-@Stateful(
-		name = "DnsRecordManager",
-		passivationCapable = false) // disables infinispan bean manager which causes immediate SFSB instances expiration
-@StatefulTimeout(0)
+@Stateful(name = "DnsRecordManager")
 @ExcludeDefaultInterceptors
+@TransactionScoped
 public class DnsRecordManagerBean implements DnsRecordManager, SessionSynchronization {
 	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	
