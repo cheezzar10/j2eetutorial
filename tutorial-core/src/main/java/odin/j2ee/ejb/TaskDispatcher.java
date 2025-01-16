@@ -10,11 +10,13 @@ import javax.ejb.MessageDriven;
 import javax.ejb.MessageDrivenContext;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 
+import odin.j2ee.api.RequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,11 +36,16 @@ public class TaskDispatcher implements MessageListener {
 	
 	@Resource
 	private MessageDrivenContext ctx;
+
+	@Inject
+	private RequestContext requestContext;
 	
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void onMessage(Message message) {
 		log.debug("task dispatcher @{}", hashCode());
+
+		log.debug("task dispatcher request context: {}", requestContext.getInstanceId());
 		
 		ObjectMessage execMsg = (ObjectMessage)message;
 		try {

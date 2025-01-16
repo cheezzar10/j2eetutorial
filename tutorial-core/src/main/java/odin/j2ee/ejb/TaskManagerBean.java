@@ -100,7 +100,7 @@ public class TaskManagerBean implements TaskManager {
 		}
 		log.debug("task {} execution parameters stored in cache", execution.getTaskName());
 
-		sleep(20);
+		// sleep(20);
 	}
 
 	private void sleep(int seconds) {

@@ -32,6 +32,8 @@ public class DnsManagerServlet extends HttpServlet {
 		log.debug("interacting with DNS manager");
 
 		dnsMgr.removeDomain("foo.bar");
+//		dnsMgr.noTxOp();
+
 		notificationSender.sendMessages(1, new String[]{"msg1", "msg2"});
 	}
 }

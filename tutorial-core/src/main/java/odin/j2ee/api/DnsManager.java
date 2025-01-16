@@ -1,10 +1,14 @@
 package odin.j2ee.api;
 
 import javax.ejb.Remote;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 
 @Remote
 public interface DnsManager {
-	public void createDomain(String domainName);
+	void createDomain(String domainName);
 	
-	public void removeDomain(String domainName);
+	void removeDomain(String domainName);
+
+	void noTxOp();
 }

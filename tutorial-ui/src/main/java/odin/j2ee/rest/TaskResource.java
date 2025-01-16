@@ -4,6 +4,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.Map;
 
 import javax.ejb.EJB;
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -18,6 +19,7 @@ import javax.ws.rs.core.*;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Providers;
 
+import odin.j2ee.api.RequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +44,9 @@ public class TaskResource {
 	
 	@Context
 	private Providers providers;
+
+	@Inject
+	private RequestContext requestContext;
 	
 	@POST
 	@Path("/hcl")
@@ -60,6 +65,8 @@ public class TaskResource {
 		
 		log.debug("sending task execution request");
 		taskMgr.execute(execution);
+
+		log.debug("request context: {}", requestContext.getInstanceId());
 	}
 	
 	@GET

@@ -52,6 +52,8 @@ public class PackageOperationTasks {
 	
 	@PreDestroy
 	private void onDestroy() {
+		log.debug("package operation tasks singleton stopped");
+
 		LoggerContext logCtx = (LoggerContext)LoggerFactory.getILoggerFactory();
 		logCtx.stop();
 	}

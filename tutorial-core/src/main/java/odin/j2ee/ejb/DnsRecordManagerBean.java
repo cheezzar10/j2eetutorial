@@ -1,10 +1,10 @@
 package odin.j2ee.ejb;
 
+import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.rmi.RemoteException;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -12,7 +12,6 @@ import javax.annotation.Resource;
 import javax.ejb.EJBException;
 import javax.ejb.SessionSynchronization;
 import javax.ejb.Stateful;
-import javax.ejb.StatefulTimeout;
 import javax.interceptor.ExcludeDefaultInterceptors;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -21,12 +20,14 @@ import javax.jms.JMSException;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.MessageProducer;
+import javax.transaction.TransactionManager;
 import javax.transaction.TransactionScoped;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import odin.j2ee.api.DnsRecordManager;
+import org.wildfly.transaction.client.ContextTransactionManager;
 
 @Stateful(name = "DnsRecordManager")
 @ExcludeDefaultInterceptors
@@ -41,7 +42,10 @@ public class DnsRecordManagerBean implements DnsRecordManager, SessionSynchroniz
 	
 	@Resource(mappedName = "java:/jms/queue/notifications")
 	private Destination queue;
-	
+
+	@Resource(mappedName = "java:jboss/TransactionManager")
+	private TransactionManager transactionManager;
+
 	private Connection connection;
 	
 	private Session session;
@@ -60,6 +64,25 @@ public class DnsRecordManagerBean implements DnsRecordManager, SessionSynchroniz
 	public void removeRecord(int recId) {
 		log.debug("DNSRECMGR @{} marking DNS record #{} as removed", hashCode(), recId);
 		removedRecIds.add(recId);
+
+		log.debug("transaction manager class: {}", transactionManager.getClass());
+
+		sleepForever();
+
+		var contextTransactionManager = (ContextTransactionManager)transactionManager;
+		log.debug("context transaction timeout: {}", contextTransactionManager.getTransactionTimeout());
+	}
+
+	private void sleepForever() {
+		log.debug("sleeping");
+
+		try {
+			Thread.sleep(10_000);
+		} catch (InterruptedException intrEx) {
+			log.debug("interrupted while sleeping");
+		}
+
+		log.debug("wake up");
 	}
 
 	@Override
